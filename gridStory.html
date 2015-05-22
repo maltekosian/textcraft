@@ -1125,6 +1125,7 @@
     /***/
     var editor = {};
     editor.mode = '';
+    editor.caretAni = -5;
     editor.current = null;
     editor.oldGame = null;
     //editor.currentScene = null;
@@ -1850,15 +1851,15 @@
     /**
     @method editEvent
     */
-    editor.editEvent = function() {
+    /*editor.editEvent = function() {
 
-    };
+    };*/
     /**
     @method addEvent
     */
-    editor.addEvent = function() {
+    /*editor.addEvent = function() {
 
-    };
+    };*/
     /**
     an editor method
     might save the game
@@ -1937,12 +1938,20 @@
     */
     var updateDraw = function() {
       if (update) {
-        if (gmode == 'editor') {
+        if (gmode == 'editor') {          
           editor.draw();
+          update = false;
+          if (editor.dialogMethod != null) {
+            area.focus();
+            update = true;
+            editor.caretAni++;
+            editor.caretAni > 15 ? editor.caretAni = -15 : editor.caretAni; 
+          }
         } else {
           game.draw();
+          update = false;
         }
-        update = false;
+        //update = false;
       }
       requestAnimationFrame(function() { updateDraw(); } );
     };
@@ -1970,7 +1979,7 @@
         ch = bufferImg.height;
       }*/
       //game or editor
-        console.log(ch,ch*0.95);
+        //console.log(ch,ch*0.95);
         ctx.fillText(''+atob(game.title),0.02*cw,ch*editor.inputs.title.pos);
         ctx.fillText(''+atob(game.quest),0.02*cw,ch*editor.inputs.quest.pos);
         if (editor.currentObject != null)
@@ -2079,7 +2088,7 @@
           ctx.fillStyle = 'rgba(255,255,255,0.85)';
           ctx.fillRect(0,0,cw,ch/2);
           ctx.fillStyle = '#000';
-          ctx.fillRect(fts * 0.2, fts * 1.5, cw-fts * 0.4,fts * 1.5);
+          ctx.fillRect(fts * 0.2, fts * 1.5, cw-fts * 0.4, fts * 1.5);
           var text = 'bla bla dialog';
           switch (editor.dialogMethod) {
             case 'setOrder':
@@ -2106,7 +2115,7 @@
           ctx.fillText(text, fts * 0.2, fts * 1.15);
 
           ctx.fillStyle = '#fff';
-          ctx.fillText(area.value, fts * 0.3, fts * 2.65);
+          ctx.fillText(area.value+(editor.caretAni < 0 ? '|' : ''), fts * 0.3, fts * 2.65);
         }
       }
     };
@@ -2236,6 +2245,12 @@
               update = true;
             } 
           }
+          if (y * canvas.height > canvas.height / 2) {
+            //close the editing
+            editor.dialogMethod = null;
+            update = true;
+          }
+          area.focus();
           return;
         }
         if (!menuMode)
