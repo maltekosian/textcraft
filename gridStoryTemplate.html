@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>Document</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+  body {
+    width: 100%;
+    margin: 0;
+    background: #fff;
+    height: 100%;
+    font-size: 20px;
+    font-family: sans-serif;
+  }
+  .box {
+    position: relative;
+    float: left;
+    width: 22%;
+    margin: 2% 0 0 2%;
+    background: #000;
+  }
+  .box:before {
+    content: "";
+    padding-top: 100%;
+    display: block;
+  }
+  .box25 {
+    position: relative;
+    width: 94%;
+    margin: 2% 0 0 2%;
+    background: rgba(204,204,204,0.5);
+  }
+  .box25:before {
+    content: "";
+    padding-top: 33%;
+    display: block;
+    overflow: hidden;
+  }
+  .content {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    min-width: 80%;
+    max-width: 80%;
+    background: #ccc;
+    padding-top: 80%;
+  }
+  .box25 .content {
+    position: absolute;
+    top: 0%;
+    left: 0;
+    min-width: 100%;
+    max-width: 100%;
+    /*background: rgba(255,205,205,0.5);*/
+    padding-top: 33%;
+  }
+  .content span {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: block;
+  }
+  .content span span {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: inline-block;
+    width: 96%;
+    margin: 1%;
+    padding: 1%;
+    border: 1px solid #fff;
+    background: #fff;
+    outline: transparent;
+    outline-style: solid;
+  }
+  .content span span:active, .content span span:hover, .content span span:focus {
+    outline: rgba(0,0,255,0.5);
+    outline-style: solid;
+  }
+  </style>
+ </head>
+ <body>
+  <div class="box25"><div class="content"><span>
+    <span id="">title data</span><br>
+    <span id="">quest data</span><br>
+  </span></div></div>
+  <!--br style="clear: both;"-->
+  <div class="box"><div class="content"></div></div>
+  <div class="box"><div class="content"><span>spect<br>1:2</span></div></div>
+  <div class="box"><div class="content"></div></div>
+  <div class="box"><div class="content"><span>spect<br>1:4</span></div></div><br style="clear: both;">
+  <div class="box"><div class="content"><span>spect<br>2:1</span></div></div>
+  <div class="box"><div class="content"><span>spect<br>2:2</span></div></div>
+  <div class="box"><div class="content"></div></div>
+  <div class="box"><div class="content"><span>spect<br>2:4</span></div></div><br style="clear: both;">
+  <div class="box"><div class="content"><span>spect<br>3:1</span></div></div>
+  <div class="box"><div class="content"><span>spect<br>3:2</span></div></div>
+  <div class="box"><div class="content"><span>spect<br>3:3</span></div></div>
+  <div class="box"><div class="content"><span>spect<br>3:4</span></div></div><br style="clear: both;">
+  <div class="box"><div class="content"><span>spect<br>4:1</span></div></div>
+  <div class="box"><div class="content"><span></span></div></div>
+  <div class="box"><div class="content"></div></div>
+  <div class="box"><div class="content"><span>spect<br>4:4</span></div></div>
+  <br style="clear: both;">
+  <div class="box25"><div class="content"><span>
+    <span id="">buttons</span><br>
+    <span id="">data 1</span><br>
+    <span id="">data 2</span><br>
+  </span></div></div>
+
+ </body>
+</html>
