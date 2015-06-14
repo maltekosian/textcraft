@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html manifest="/cache.appcache">
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    body {
+      margin: 0;
+      width: 100%;
+      font-family: sans-serif;
+    }
+    body:before {
+      padding-top: 100%;
+      display: block;
+    }
+    #content {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 96%;
+      margin: 1%;
+    }
+    #menu_overlay {
+      width: 100%;
+      position: fixed;      
+      top: 0;
+      left: 0;           
+    }
+    #menu_overlay.active {      
+      height:100%;
+      background: rgba(153,153,153,0.5); 
+    }
+    #menu_overlay:before {
+      padding-top: 100%;
+      display: block;
+    }
+    #menu {
+      position: absolute;      
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 200%;
+      background: #fff;
+      display: none;
+    }
+    #menu:before {
+      padding-top: 100%;
+      display: block;
+    } 
+    #menu_overlay.active #menu {
+      display: block;
+    }  
+
+    #menu_icon {
+      position: absolute;      
+      top: 0;
+      left: 0;
+      width: 50px;
+      height: 50px;
+      background: rgba(255,0,0,0.7);
+    }
+    
+    #menu_icon2 {
+      position: absolute;      
+      top: 0;
+      right: 0;
+      width: 50px;
+      height: 50px;
+      background: rgba(255,0,0,0.7);
+    }    
+    
+    #menu span {
+      padding: 1%;
+      margin: 1%;
+      width: 90%;
+      display: inline-block;
+      border: 2px transparent solid;
+      outline: transparent;
+    }
+    #menu span:active, #menu span:hover, #menu span:focus {
+      background: #ccc;
+      outline: blue;
+    }
+    #message {
+      position: fixed;
+      z-index: 1000;
+      top: 0;
+      left: 0;
+      width: 95%;
+      margin: 1%;
+      padding: 1%;
+      display: none;
+      background: #fd9;
+      color: #0c0;
+      font-weight: bold;
+    }
+    #message.active {
+      display: block;
+    }
+  </style> 
+ </head>
+ <body ononline="message('online');" onoffline="message('OFFLINE now!');">
+<div id="content">
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<img src="download.png" style="width: 97%; max-height: 25%; margin: 1%;"><br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+<h1>Content test text and lore ipsum</h1>Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br> This is the lore ipsum text. A test of chapters. Is this a lore ipsum test text? Content test text and lore ipsum, if not more. Let's have a break.<br>A coffee break<br><br>
+</div>
+<div id="menu_overlay">
+  <div id="menu_icon" onclick="getElement('menu_overlay').className='active'"></div>
+  <div id="menu">
+    <div id="menu_icon2" onclick="getElement('menu_overlay').className='';"></div>
+    <span>login</span><br>
+    <span>favorites</span><br>
+    <span>overview</span><br>
+  </div>
+</div>
+<div id="message" onclick="this.className='';"></div>
+  <script>
+  function message(str) {
+    getElement('message').innerHTML = str;
+    getElement('message').className = 'active';
+  }
+  //only deliver this part of code, if your are pur
+  function favorites(event) {
+    console.clear();    
+    //the key value pair is
+    //document.title = key
+    //page content = value
+    //add to local storage
+    console.log(getElement('content').innerHTML, document.title);
+    //var eles = document.querySelectorAll('img');
+    //for (var i = 0; i < eles.length; i++) {console.log(getImageDataUrl(eles[i]));};
+    message(document.title+':<br>'+getElement('content').innerHTML);
+  }
+  //otherwise
+  /*function favorites(event) {
+    message('This feature is for pur users only.')
+  }*/
+  /*function getImageDataUrl(img) {    
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    var dataURL = canvas.toDataURL("image/jpg");
+    return dataURL;
+  };*/
+
+
+  function login(event) {
+    message('This feature is for pur users only.')
+  }
+
+  function overview(event) {
+    message('This feature is for pur users only.')
+  }
+
+  function tryHideMenu(event) {
+    var ele = getElement('menu_overlay');    
+    var w = ele.offsetWidth;
+    console.log(event.x, w);
+    if (event.x > w/2) {
+      ele.className = '';
+    }
+  }
+  getElement('menu_overlay').addEventListener('click', tryHideMenu, true);
+
+  var eles = selectAll('#menu span');
+  for (var i = 0; i < eles.length; i++) {
+    var code = eles[i].innerHTML+'(event);';
+    var func = Function('event',code);
+    eles[i].addEventListener('click', func, true);
+  }
+  /*short hands*/
+  function getElement(id){
+    return document.getElementById(id);
+  }
+  function select(selectors){
+    return document.querySelector(selectors);
+  }
+  function selectAll(selectors){
+    return document.querySelectorAll(selectors);
+  }
+   
+  var condition = 'online';
+  var condition_count = 0;
+
+  function onlineTest() {
+    var xhr = new XMLHttpRequest();
+    
+    console.log('http://'+location.hostname+'/ajax_info.txt');
+    xhr.open('GET','http://'+location.hostname+'/ajax_info.txt?rand='+Math.random(),true);
+    xhr.cache = false;
+    xhr.onreadystatechange = function() {
+      if (xhr.status==200)
+      {
+        var responseText = xhr.responseText;
+        console.log(responseText);
+        if (responseText == 'x') {
+          condition = 'online';
+          condition_count = 0;
+          console.log(condition);
+        } else {
+          //condition = 'OFFLINE';
+          //console.log(condition);
+          condition_count++;
+          if (condition_count > 3) {
+            condition = 'OFFLINE';
+            message('You\'re offline maybe.');
+          }
+        }
+      } else {
+        condition = 'OFFLINE';
+        console.log(condition);
+        message('You\'re offline.');
+      }
+    };
+    xhr.send();
+  }
+
+  function testOnline(event) {   
+    onlineTest();
+    console.log(condition);
+    if (condition == 'OFFLINE') {
+      event.returnValue = 'You are '+condition+'! Do you realy want to leave to nowhere?';
+      return 'You are '+condition+'! Do you realy want to leave to nowhere?';
+    }
+  }
+  window.addEventListener('beforeunload', function(event) {
+    testOnline(event);
+  }, false);
+  setInterval(onlineTest, 3000);
+  </script>
+ </body>
+</html>
