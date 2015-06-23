@@ -9,26 +9,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Grid Story Game</title>
   <style>
-  body {background: #fff; margin: 0; overflow: hidden;}
-  #grid-container {
-	position:relative;width: 99%; max-width: 99%;
-  }
-  #grid-container:before {
-	display: block;width: 99%; padding-top: 100%;
-  }  
+  body {background: #fff; margin: 0; overflow: hidden;font-family:sans-serif;font-size: 15px;}
+  #grid-container { position:relative;width: 99%; max-width: 99%; }
+  #grid-container:before { display: block;width: 99%; padding-top: 100%; }  
   .grid { position:relative;float:left;background:#000;border:0;margin:0.5%;width:23.5%;height: 23.5%;}
-  .grid-ready,.grid-end,.grid-element,.grid-start{
-    background:#ccc;margin: 10% 0 0 10%;width:80%;height: 80%;
-  }
-  .grid-ready:before,.grid-end:before,.grid-element:before,.grid-start:before {
-	display: block;width:23.5%;padding-top: 100%;
-  }  
+  .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:80%;height: 80%;max-width:80%;max-height: 80%; font-size: 12px;}  
+  button,input,select,option,.input {display: inline-block; margin: 1%; padding: 1%; border: 1px solid rgb(153, 153, 153); box-shadow: rgb(153, 153, 153) 1px 1px 0px inset, rgb(153, 153, 153) -1px -1px 0px inset; background: #ffc;border-radius: 8px;}
+  select,option,input {max-width: 95%; min-width: 95%;}
+  button {padding: 1.5% 3%; }
+  input[type=checkbox],input[type=radio]{max-width: 6%; min-width: 6%;}
+  .input:active {background:#cc9;}
   .grid-start{background:#0c0;}
   .grid-end{background:#c00;}
   .grid-ready{background:#99c;}
-  .grid-current{border-color:#f90;}
+  /*.grid-current{border-color:#f90;}*/
   .grid.current {background:#f90;}
-  .prompt{position: absolute; left: 5%; top: 5%; min-width: 83%;max-width: 83%; min-height: 83%;max-height: 83%; padding: 1%; z-index: 100; display: block; overflow: auto; background: rgba(204,204,204,0.75); color: #000; box-shadow: 5px 5px 8px #999, 0px 0px 1px #000;}
+  .grid:active, .grid:focus {background:#f90;}
+  .prompt{position: absolute; left: 1%; top: 1%; min-width: 95%;max-width: 95%; min-height: 95%;max-height: 95%; padding: 1%; z-index: 100; display: block; overflow: auto; background: rgba(253,253,253,0.95); color: #000; box-shadow: inset 1px 1px 0px #999,inset 1px 1px 0px #999;border:1px solid #999;}
   /*.ingame-visible{display: block;}*/
  </style>
  <!--
@@ -912,7 +909,34 @@
     @param menuEntries array menu's texts and methods
     */
     editor.showTextMenu = function(id, menuEntries) {
+      editor.setCurrent(id);
+      console.log(id,menuEntries);
+      var obj = game.getObject(id);
+      editor.setText(id, obj.getText());
+      var prompt = getElement('prompt');
+      if (prompt == null)
+      {
+        prompt = createElement('div');
+        prompt.className = 'prompt';
+        prompt.setAttribute('id','prompt');
+        body.appendChild(prompt);
+      }
+      prompt.innerHTML = '';
+      var ele = createElement('button');
+      ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
+      ele.appendChild(createTextNode('close'));
+      prompt.appendChild(ele);
+      prompt.appendChild(createElement('br'));
+      prompt.appendChild(createElement('hr'));
       
+      for (var i = 0; i < menuEntries.length; i++) {
+        ele = createElement('div');
+        prompt.appendChild(ele);
+        ele.appendChild(createTextNode(menuEntries[i].txt));
+        ele.setAttribute('onclick',menuEntries[i].method);
+        prompt.appendChild(createElement('hr'));
+      }
+      prompt.style.display = 'block';
     };
     /**
     stores the game if store is available
@@ -985,24 +1009,30 @@
 
       //}
       var ele = getElement('output');
+      ele.innerHTML = '';
       var ele2 = getElement('s_'+obj.id);
       if (ele2 == null) {
         ele2 = createElement('span');
         ele2.style.display='inline-block';
-        ele2.style.borderBottom='dotted 1px #999';
-        ele2.style.marginBottom = '2px';
+        //ele2.style.border='dotted 1px #999';
+        ele2.style.minWidth = '98%';
+        ele2.style.background = '#f90';
+        ele2.style.marginTop = '2%';
         ele2.setAttribute('id','s_'+obj.id);
         var span = createElement('span');
+        span.className = 'input';
         span.style.cssFloat='left';
-        span.style.marginRight='1px';
-        span.style.display='inline-block';
-        span.style.minWidth='40px';
-        span.style.border = 'solid 1px #999';
+        span.style.minWidth='12.5%';
+        span.style.maxWidth='12.5%';
         span.setAttribute('id','ord_'+obj.id);
         span.setAttribute('onclick','editor.showOrderAndEventsPrompt(\''+obj.id+'\');');
         span.appendChild(createTextNode(obj.order));
         ele2.appendChild(span);
-        span = createElement('span');
+        span = createElement('div');
+        span.className = 'input';
+        span.style.cssFloat='left';
+        span.style.minWidth='78%';
+        span.style.maxWidth='78%';
         span.setAttribute('id','s_t_'+obj.id);
         span.setAttribute('onclick', 'editor.showDependenciesPrompt(\''+obj.id+'\');');
         span.appendChild(createTextNode(_text));
@@ -1010,12 +1040,12 @@
         ele.appendChild(ele2);
         ele.appendChild(createElement('br'));
       } else {
-        ele2 = getElement('s_t_'+obj.id);
+        /*ele2 = getElement('s_t_'+obj.id);
         ele2.innerHTML = '';
         ele2.appendChild(createTextNode(_text));
         ele2 = getElement('ord_'+obj.id);
         ele2.innerHTML = '';
-        ele2.appendChild(createTextNode(obj.order));
+        ele2.appendChild(createTextNode(obj.order));*/
       }
       if (_id == game.start) {
         ele2.style.color = '#0c0';
@@ -1185,16 +1215,16 @@
     @method setCurrent
     */
     editor.setCurrent = function(id) {
-      var ele = null
+      var ele = null;
       if (editor.current != null) {
-        ele = getElement(''+editor.current);
-        ele.className = ele.className.replace(/ grid current/g, '');
-        ele.setAttribute('onclick','editor.setText(\''+ele.id+'\',null);');
+        ele = getElement('p'+editor.current);
+        ele.className = ele.className.replace(/ current/g, '');
+        //ele.setAttribute('onclick','editor.setText(\''+ele.id+'\',null);');
       }
       editor.current = id;
-      ele = getElement(''+id);
-      ele.className = ele.className+' grid-current';
-      ele.setAttribute('onclick','editor.setOrderAndEvents(\''+ele.id+'\');');
+      ele = getElement('p'+id);
+      ele.className = ele.className+' current';
+      //ele.setAttribute('onclick','editor.setOrderAndEvents(\''+ele.id+'\');');
     };
     /**
     @method showOrderAndEventsPrompt
@@ -1271,7 +1301,7 @@
       prompt.appendChild(createElement('br'));
       prompt.appendChild(createElement('hr'));
       span = createElement('button');
-      span.appendChild(createTextNode('set order, events, dependencies'));
+      span.appendChild(createTextNode('set order and events'));
       span.setAttribute('onclick','editor.setOrderAndEvents(\''+obj.id+'\');');
       prompt.appendChild(span);
       prompt.appendChild(createElement('br'));
@@ -1349,6 +1379,7 @@
         span.setAttribute('id','depend_priority_'+i);
         span.value = dependencies[i].priority;
         ele.appendChild(span);
+        ele.appendChild(createElement('br'));
         ele.appendChild(createTextNode(' method: '));
         span = createElement('input');
         span.setAttribute('type', 'radio');
@@ -1442,6 +1473,7 @@
       span.setAttribute('id','depend_priority_'+dependencies.length);
       span.value = '';
       ele.appendChild(span);
+      ele.appendChild(createElement('br'));
       ele.appendChild(createTextNode(' method: '));
       span = createElement('input');
         span.setAttribute('type', 'radio');
@@ -1562,9 +1594,10 @@
     };
     /**
     an editor method
-    @method updateDraw
+    @method draw
     */
     editor.draw = function() {
+      /*
       var cw = canvas.width;
       var ch = canvas.height;
       //ctx.fillStyle = '#eee';
@@ -1612,7 +1645,7 @@
             ctx.fillRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
             ctx.strokeRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
           //}
-        }
+        }*/
         //end of btx context
         /*ctx.fillStyle = '#000';
         var fts = Math.round(0.035*cw);
@@ -1632,7 +1665,7 @@
             ctx.fillText(''+game.currentText,0.02*cw,(0.01*cw+fts)*6.25);
           }
         }*/
-      }//draw menu, inputs, prompts and selects here
+      //}//draw menu, inputs, prompts and selects here
     };
     /**
     editor method
@@ -1643,10 +1676,7 @@
       game = editor.loadGame();
       var ele = null;
       ele = createElement('span');
-      ele.style.display = 'inline-block';
-      ele.style.marginBottom = '2px';
-      ele.style.border = 'solid 1px #999';
-      ele.style.maxWidth = '90%';
+      ele.className = 'input';
       ele.setAttribute('onclick','editor.setTitle();');
       ele.setAttribute('id','title');
       ele.appendChild(createTextNode(game.title==null?'click to edit title.':atob(game.title)));
@@ -1655,10 +1685,7 @@
       ele.style.clear='both';
       body.appendChild(ele);
       ele = createElement('span');
-      ele.style.display = 'inline-block';
-      ele.style.marginBottom = '2px';
-      ele.style.border = 'solid 1px #999';
-      ele.style.maxWidth = '90%';
+      ele.className = 'input';
       ele.setAttribute('onclick','editor.setQuest();');
       ele.setAttribute('id','quest');
       ele.appendChild(createTextNode(game.quest==null?'click and enter quest.':atob(game.quest)));
@@ -1697,21 +1724,27 @@
       {
         for (var j = 0; j < 4; j++)
         {
-		  elep= createElement('div');
-		  elep.className = 'grid';	
-		  elep.setAttribute('id','po_'+i+'_'+j);
-		  elep.setAttribute('onclick',
-							'editor.showTextMenu(\''+ele.id+'\',[{txt:\'text\',method: editor.setText(\''+'o_'+i+'_'+j+'\',null)},{txt:\'events\',method:editor.showOrderAndEventsPrompt(\''+'o_'+i+'_'+j+'\')},{txt:\'dependencies\',method:editor.showDependenciesPrompt(\''+'o_'+i+'_'+j+'\')}]);');
-			
+		    elep= createElement('div');
+		    elep.className = 'grid';	
+		    elep.setAttribute('id','po_'+i+'_'+j);
+		    elep.setAttribute('onclick',		
+          'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
+              '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+ 
+              '{\'txt\':\'set order and events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
+              '{\'txt\':\'set dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
           ele = createElement('div');
           ele.className = 'grid-element';
           ele.setAttribute('id','o_'+i+'_'+j);
-          ele.setAttribute('onclick','editor.showMenu(\''+ele.id+'\',\'text\',\'events\',\'dependencies\');/*editor.setText(\''+ele.id+'\',null);*/');
-          ele.appendChild(createTextNode(' '+ele.id));
+          //ele.setAttribute('onclick',
+          //    'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
+          //    '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+ 
+          //    '{\'txt\':\'events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
+          //    '{\'txt\':\'dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
+          ele.appendChild(createTextNode(' '+'o_'+i+'_'+j));
           //ele.appendChild(createTextNode(' '+obj.order));
-          if (game.getObject(ele.id)==null)
+          if (game.getObject('o_'+i+'_'+j)==null)
           {
-            var obj = new GameObject(ele.id, null);
+            var obj = new GameObject('o_'+i+'_'+j, null);
             //game.objects.push({text:'',order: 0, id:ele.id, event: null});
             obj.x = 0.04 + j * 0.24;//canvas.width/40 + j * canvas.width/4.5;
             obj.y = 0.04 + i * 0.24;//canvas.width/8 + i * canvas.width/4.5;
@@ -1728,30 +1761,26 @@
         grid.appendChild(ele);
       }
 	  
-      ele = createElement('input');
-      ele.setAttribute('type','button');
-      ele.setAttribute('value','set start');
+      ele = createElement('button');
+      ele.appendChild(createTextNode('set start'));
       ele.setAttribute('onclick','alert(\'The next click will set the new start object.\');editor.mode=\'setstart\';');
       body.appendChild(ele);
-      ele = createElement('input');
-      ele.setAttribute('type','button');
-      ele.setAttribute('value','set end');
+      ele = createElement('button');
+      ele.appendChild(createTextNode('set end'));
       ele.setAttribute('onclick','alert(\'The next click will set the new end object.\');editor.mode=\'setend\';');
       body.appendChild(ele);
-      ele = createElement('input');
-      ele.setAttribute('type','button');
-      ele.setAttribute('value','new game');
+      ele = createElement('button');
+      ele.appendChild(createTextNode('new game'));
       ele.setAttribute('onclick','editor.newGame();');
       body.appendChild(ele);
-      ele = createElement('input');
-      ele.setAttribute('type','button');
+      ele = createElement('button');
       ele.setAttribute('id','playbutton');
-      ele.setAttribute('value','play');
+      ele.appendChild(createTextNode('play'));
       ele.setAttribute('onclick','alert(\'Here you can play and test you game.\');editor.playGame();');
       body.appendChild(ele);
       ele = createElement('div');
-      ele.style.height = '250px';
-      ele.style.overflow = 'scroll';
+      //ele.style.height = '250px';
+      //ele.style.overflow = 'scroll';
       ele.setAttribute('id','output');
       body.appendChild(ele);
       for (var i = 0; i < game.objects.length; i++)
@@ -1764,7 +1793,10 @@
         }
         getElement(obj.id).appendChild(createElement('br'));
         getElement(obj.id).appendChild(createTextNode(' '+obj.order));
+        getElement('ord_'+obj.id).innerHTML = '<br>';
+        getElement('s_t_'+obj.id).innerHTML = '<br>';
       }
+      //
       update = true;
       requestAnimationFrame(function() {editor.updateDraw();} );
     };
