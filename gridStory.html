@@ -907,6 +907,14 @@
       getElement('prompt').style.display = 'none';
     }
     /**
+    @method showTextMenu
+    @param id id of the object
+    @param menuEntries array menu's texts and methods
+    */
+    editor.showTextMenu = function(id, menuEntries) {
+      
+    };
+    /**
     stores the game if store is available
     @method setText
     @param id id of the object
@@ -1303,7 +1311,7 @@
     /**
     @method showDependenciesPrompt
     */
-    editor.showDependenciesPrompt = function(obj) {
+    editor.showDependenciesPrompt = function(obj_id) {
       var prompt = getElement('prompt');
       //alert('prompt: '+prompt);
       if (prompt == null)
@@ -1411,7 +1419,7 @@
       prompt.appendChild(createElement('hr'));
       span = createElement('button');
       span.appendChild(createTextNode('set dependencies'));
-      span.setAttribute('onclick','editor.setDependencies(\''+obj.id+'\');');
+      span.setAttribute('onclick','editor.setDependencies(\''+obj_id+'\');');
       prompt.appendChild(span);
       prompt.appendChild(createElement('br'));
       prompt.style.display='block';
@@ -1693,7 +1701,7 @@
 		  elep.className = 'grid';	
 		  elep.setAttribute('id','po_'+i+'_'+j);
 		  elep.setAttribute('onclick',
-							'editor.showMenu(\''+ele.id+'\',\'text\',\'events\',\'dependencies\');/*editor.setText(\''+'o_'+i+'_'+j+'\',null);*/');
+							'editor.showTextMenu(\''+ele.id+'\',[{txt:\'text\',method: editor.setText(\''+'o_'+i+'_'+j+'\',null)},{txt:\'events\',method:editor.showOrderAndEventsPrompt(\''+'o_'+i+'_'+j+'\')},{txt:\'dependencies\',method:editor.showDependenciesPrompt(\''+'o_'+i+'_'+j+'\')}]);');
 			
           ele = createElement('div');
           ele.className = 'grid-element';
