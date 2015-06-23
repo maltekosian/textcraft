@@ -10,14 +10,24 @@
   <title>Grid Story Game</title>
   <style>
   body {background: #fff; margin: 0; overflow: hidden;}
-
-  .grid-ready,.grid-end,.grid-element,.grid-start{
-  float:left;background:#ccc;border:10px solid #000;margin:5px;width:60px;height:60px;
+  #grid-container {
+	position:relative;width: 99%; max-width: 99%;
   }
+  #grid-container:before {
+	display: block;width: 99%; padding-top: 100%;
+  }  
+  .grid { position:relative;float:left;background:#000;border:0;margin:0.5%;width:23.5%;height: 23.5%;}
+  .grid-ready,.grid-end,.grid-element,.grid-start{
+    background:#ccc;margin: 10% 0 0 10%;width:80%;height: 80%;
+  }
+  .grid-ready:before,.grid-end:before,.grid-element:before,.grid-start:before {
+	display: block;width:23.5%;padding-top: 100%;
+  }  
   .grid-start{background:#0c0;}
   .grid-end{background:#c00;}
   .grid-ready{background:#99c;}
   .grid-current{border-color:#f90;}
+  .grid.current {background:#f90;}
   .prompt{position: absolute; left: 5%; top: 5%; min-width: 83%;max-width: 83%; min-height: 83%;max-height: 83%; padding: 1%; z-index: 100; display: block; overflow: auto; background: rgba(204,204,204,0.75); color: #000; box-shadow: 5px 5px 8px #999, 0px 0px 1px #000;}
   /*.ingame-visible{display: block;}*/
  </style>
@@ -1170,7 +1180,7 @@
       var ele = null
       if (editor.current != null) {
         ele = getElement(''+editor.current);
-        ele.className = ele.className.replace(/ grid-current/g, '');
+        ele.className = ele.className.replace(/ grid current/g, '');
         ele.setAttribute('onclick','editor.setText(\''+ele.id+'\',null);');
       }
       editor.current = id;
@@ -1671,10 +1681,20 @@
       //getElement('playbutton').value='stop';
       //getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
       //body.appendChild(canvas);
+	  var grid = createElement('div');
+	  grid.setAttribute('id','grid-container');
+	  body.appendChild(grid);
+	  grid.style.height = grid.offsetWidth+'px';
       for (var i = 0; i < 4; i++)
       {
         for (var j = 0; j < 4; j++)
         {
+		  elep= createElement('div');
+		  elep.className = 'grid';	
+		  elep.setAttribute('id','po_'+i+'_'+j);
+		  elep.setAttribute('onclick',
+							'editor.showMenu(\''+ele.id+'\',\'text\',\'events\',\'dependencies\');/*editor.setText(\''+'o_'+i+'_'+j+'\',null);*/');
+			
           ele = createElement('div');
           ele.className = 'grid-element';
           ele.setAttribute('id','o_'+i+'_'+j);
@@ -1692,12 +1712,14 @@
             obj.oy = obj.y;
             game.objects.push(obj);
           }
-          body.appendChild(ele);
+		  elep.appendChild(ele);
+          grid.appendChild(elep);
         }
         ele = createElement('br');
         ele.style.clear='both';
-        body.appendChild(ele);
+        grid.appendChild(ele);
       }
+	  
       ele = createElement('input');
       ele.setAttribute('type','button');
       ele.setAttribute('value','set start');
