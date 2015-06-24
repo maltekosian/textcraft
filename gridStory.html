@@ -30,7 +30,7 @@
   .helptext {display: block; width: 94%; border: dotted 1px #ccc; font-size: 12px; margin-left: 1%; padding: 2%;};
   .closer,button.closer {font-weight: bold; color: #fff; background: #c00; width: 20%; min-width: 20%; max-width: 20%;}
   .closer:hover,.closer:focus,.closer:active {background: #f00;}
-
+  .canvas-container {display:none;position:absolute;top:0;left:0;width: 100%;max-width: 100%;height: 100%;max-height: 100%;}
   /*.ingame-visible{display: block;}*/
  </style>
  <!--
@@ -134,7 +134,132 @@
  </head>
  <body>
   <script>
-  (function(_win) {
+  (function(win) {
+    /**
+    @class MediaLanguage
+    @param _lan
+    @since 2014-05-18
+    */
+    function MediaLanguage(_lan) {
+      /**
+      @attribute language
+      */
+      this.language = _lan;
+      /**
+      @property medias
+      */
+      this.medias = [];
+      /**
+      @method load
+      @param data
+      @since 2014-05-29
+      */
+      this.load = function(data) {
+      this.language = data['language'];
+      this.medias = [];
+      for (var i = 0; i < data['medias'].length; i++) {
+       this.medias.push({ key:data['medias'][i]['key'], value:data['medias'][i]['value']});
+      }
+      };
+      /**
+      _t64 indicates if the value has to be base64_encoded or not
+      @method setMedia
+      @since 2014-05-15
+      @param _k the key
+      @param _v the value
+      @param {boolean} _t64 to be 64 encoded
+      */
+      this.setMedia = function(_k, _v, _t64) {
+      //console.log('setMedia'+_k);
+      if (this.hasMedia(_k)) {
+       this.getMedia(_k).value = _t64 ? btoa(_v): _v;
+      } else {
+       this.addMedia(_k, _v, _t64);
+      }
+      };
+      /**
+      use this to get Images, Audios, Videos and other
+      media that should stay bas64 encoded
+      var myMediaValue = [..].getMedia('key').value;
+      @method getMedia
+      @since 2014-05-15
+      @param _k the key
+      @return the complete media Object
+      */
+      this.getMedia = function(_k) {
+        for (var i = 0; i < this.medias.length; i++) {
+          if (this.medias[i].key == _k) {
+            return this.medias[i];
+          }
+        }
+        return null;
+      };
+      /**
+      Don't use this method for images, audios or videos,
+      because those have to stay base64_encoded
+      @method getTextMedia
+      @since 2014-05-15
+      @param _k the key
+      @return the media value - always base64 decoded
+      */
+      this.getTextMedia = function(_k) {
+        for (var i = 0; i < this.medias.length; i++) {
+          if (this.medias[i].key == _k) {
+            //console.log('getMedia->'+atob(this.medias[i].value));
+            return atob(this.medias[i].value);
+          }
+        }
+        return null;
+      };
+      /**
+      @method hasMedia
+      @since 2014-05-15
+      @param _k the key
+      @return {boolean} true if the media with the key exists
+      */
+      this.hasMedia = function(_k, _v) {
+        for (var i = 0; i < this.medias.length; i++) {
+          if (this.medias[i].key == _k) {
+            return true;
+          }
+        }
+        return false;
+      };
+      /**
+      @method deleteMedia
+      @since 2014-05-16
+      @param _k the key
+      */
+      this.deleteMedia = function(_k, _v) {
+        for (var i = 0; i < this.medias.length; i++) {
+          if (this.medias[i].key == _k) {
+            return this.medias.splice(i, 1);
+          }
+        }
+      };
+      /**
+      @method addMedia
+      @since 2014-05-15
+      @param _k the key
+      @param _v the value
+      @param {boolean} _t64 to be 64 encoded
+      */
+      this.addMedia = function(_k, _v, _t64) {
+        this.medias.push(this.createMedia(_k, _v, _t64));
+      };
+      /**
+      @method createMedia
+      @since 2014-05-15
+      @param _k the key
+      @param _v the value
+      @param {boolean} _t64 to be 64 encoded
+      @return the media Object
+      */
+      this.createMedia = function(_k, _v, _t64) {
+        _v = _t64 ? btoa(_v): _v;
+        return { key : _k, value : _v };
+      };
+    };
     var Game = function(){};
     Game.prototype.start = null;
     Game.prototype.end = null;
@@ -151,6 +276,8 @@
     //so the quest will be validated in the end of the level/game
     Game.prototype.quest = null;
     Game.prototype.over = false;
+    Game.prototype.menuMode = false;
+    Game.prototype.mousetime = null;
     /**
     @method getObject
     @param id the id of the object
@@ -176,21 +303,40 @@
       var obj = this.getObject(id);
       console.log('showObject->',id,obj);
       obj.visible = true;
-      obj.active = true;      
+      obj.active = true;
       //game.currentText = null;
     };
     /**
-    hide the Object complete on visible false
-    otherwise it is deactivated
+    hide the Object complete
+    it is deactivated and invisble
     @method hideObject
     @param id the id of the object
-    @param visible
     */
-    Game.prototype.hideObject = function(id,visible) {
+    Game.prototype.hideObject = function(id) {
       var obj = this.getObject(id);
-      obj.visible = visible;
+      obj.visible = false;
       obj.active = false;
       //game.currentText = null;
+    };
+    /**
+    make the object visible
+    the object will stay active or deactivated
+    @method makeVisible
+    @param id the id of the object
+    */
+    Game.prototype.makeVisible = function(id) {
+      var obj = this.getObject(id);
+      obj.visible = true;
+    };
+    /**
+    the object is invisible
+    but it will stay active or deactivated
+    @method makeInvisible
+    @param id the id of the object
+    */
+    Game.prototype.makeInvisible = function(id) {
+      var obj = this.getObject(id);
+      obj.visible = true;
     };
     /**
     display the given text
@@ -229,13 +375,15 @@
     @param y the y coordinate in 0 to 1 .
     */
     Game.prototype.mousePressed = function(x,y) {
+      console.log(pressed);
       if (!pressed)
       {
         pressed = true;
         var obj = null;
+        var yo = y * canvas.height / canvas.width;
         for (var i = 0; i < game.objects.length; i++) {
           obj = game.objects[i];
-          if (obj.pointHits(x,y) && obj.active) {
+          if (obj.pointHits(x,yo) && obj.active) {
             game.current = obj;
           }
         }
@@ -243,6 +391,9 @@
         py = y;
         mx = x;
         my = y;
+        if (game.current == null) {
+          this.mousetime = setTimeout(function() { game.showMenu(); }, 1000);
+        }
         update = true;
       }
     };
@@ -257,8 +408,9 @@
       {
         if (game.current != null)
         {
+          var yo = y * canvas.height / canvas.width;
           game.current.x += x-game.current.x;
-          game.current.y += y-game.current.y;
+          game.current.y += yo-game.current.y;
           update = true;
         }
       }
@@ -272,49 +424,58 @@
     Game.prototype.mouseReleased = function(x,y) {
       if (pressed)
       {
+        console.log(x,y);
+        if (!game.menuMode) {
         //game.menumode false|true
-        if (!game.over) {
-          if (game.current != null && game.start != null && (
-              (game.current.id != game.start &&
-              game.getObject(game.start).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)) ||
-              (game.end != null && game.current.id == game.start &&
-              game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2))
-             ))
-          {
-            if (game.current.id == game.start &&
-               game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)
-               )
+          if (game.mousetime != null) {
+            clearTimeout(game.mousetime);
+            game.mousetime = null;
+          }
+          if (!game.over) {
+            if (game.current != null && game.start != null && (
+                (game.current.id != game.start &&
+                game.getObject(game.start).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)) ||
+                (game.end != null && game.current.id == game.start &&
+                game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2))
+               ))
             {
-              game.current = game.getObject(game.end);
+              if (game.current.id == game.start &&
+                 game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)
+                 )
+              {
+                game.current = game.getObject(game.end);
+              }
+              if (game.order.indexOf(game.current.id) < 0) {
+                game.order.push(game.current.id);
+              }
+              game.current.active = false;
+              game.current.visible = false;
+              if (game.current.events != null) {
+                game.current.getEvent();
+              }
+              if (game.current.id == game.end) {
+                game.over = true;
+              }
+            } else if (game.current != null && game.current.id == game.start &&
+                       game.getObject(game.start).pointHits(game.current.ox+game.current.w/2, game.current.oy+game.current.h/2)
+                      )
+            {
+              if (game.order.indexOf(game.current.id) < 0) {
+                game.order.push(game.current.id);
+              }
+              if (game.current.events != null) {
+                game.current.getEvent();
+              }
+            } else if (game.current != null)
+            {
+              game.current.x = game.current.ox;
+              game.current.y = game.current.oy;
             }
-            if (game.order.indexOf(game.current.id) < 0) {
-              game.order.push(game.current.id);
-            }
-            game.current.active = false;
-            game.current.visible = false;
-            if (game.current.events != null) {
-              game.current.getEvent();
-            }
-            if (game.current.id == game.end) {
-              game.over = true;
-            }
-          } else if (game.current != null && game.current.id == game.start &&
-                     game.getObject(game.start).pointHits(game.current.ox+game.current.w/2, game.current.oy+game.current.h/2)
-                    )
-          {
-            if (game.order.indexOf(game.current.id) < 0) {
-              game.order.push(game.current.id);
-            }
-            if (game.current.events != null) {
-              game.current.getEvent();
-            }
-          } else if (game.current != null)
-          {
-            game.current.x = game.current.ox;
-            game.current.y = game.current.oy;
+          } else {
+
           }
         } else {
-
+          //M E N U M O D E
         }
         px = 0;
         py = 0;
@@ -346,7 +507,7 @@
         }
       }
       game.over = false;
-      if ('ontouchstart' in window)
+      /*if ('ontouchstart' in window)
       {
         console.log('using touch');
         canvas.addEventListener('touchstart',
@@ -397,10 +558,10 @@
         game.mouseReleased(eve.pageX/canvas.width,
           eve.pageY/canvas.width);
       },
-      false);
+      false);*/
 
       update = true;
-      requestAnimationFrame(function() { game.updateGraphics(); });
+      //requestAnimationFrame(function() { game.updateGraphics(); });
     };
     /***/
     Game.prototype.updateGraphics = function() {
@@ -447,7 +608,7 @@
       var depend = null;
       for (var i = 0; i < this.dependencies.length; i++) {
         depend = this.dependencies[i];
-        if (depend.method != null && depend.method == method && 
+        if (depend.method != null && depend.method == method &&
             depend.params.length > 0 && depend.params[0] == obj_id)
         {
           return depend;
@@ -456,12 +617,175 @@
       return null;
     }
     /**
+      @class mediamanager
+      @since 2014-05-18
+    */
+    Game.prototype.mediamanager = {
+      /**
+      @property defaultLananguage
+      @default 'en'
+      */
+      defaultLanguage : 'en',
+      /**
+      @property currentLanguage
+      @default 'en'
+      */
+      currentLanguage : 'en',
+      /**
+      @property {array} languages
+      */
+      languages : [],
+      /**
+      @property {array} mediaLanguages
+      */
+      mediaLanguages : [],
+      /**
+      @method setCurrentLanguage
+      */
+      setCurrentLanguage : function(_lan) {
+        this.currentLanguage = _lan;
+        if (!this.hasLanguage(_lan)) {
+          this.addLanguage(_lan);
+        }
+      },
+      /**
+      @method addLanguage
+      */
+      addLanguage : function(_lan) {
+        this.mediaLanguages.push( new MediaLanguage(_lan) );
+        this.languages.push(_lan);
+      },
+      /**
+      @method hasLanguage
+      */
+      hasLanguage : function(_lan) {
+        for (var i = 0; i < this.languages.length; i++) {
+          if (this.languages[i] == _lan) {
+            return true;
+          }
+        }
+        return false;
+      },
+      /**
+      @method getLanguage
+      @since 2014-07-31
+      @param _lan a language key like 'en','de',...
+      @return {MediaLanguage} a mediaLanguage or null
+      */
+      getLanguage : function(_lan) {
+        for (var i = 0; i < this.mediaLanguages.length; i++) {
+          if (this.mediaLanguages[i].language == _lan) {
+            return this.mediaLanguages[i];
+          }
+        }
+        return null;
+      },
+      /**
+      @method getCurrentLanguage
+      */
+      getCurrentLanguage : function() {
+        for (var i = 0; i < this.mediaLanguages.length; i++) {
+          if (this.mediaLanguages[i].language == this.currentLanguage) {
+            return this.mediaLanguages[i];
+          }
+        }
+        this.currentLanguage = this.defaultLanguage;
+        var language = new MediaLanguage(this.currentLanguage);
+        this.mediaLanguages.push( language );
+        this.languages.push(this.currentLanguage);
+        return language;
+      },
+      /**
+      returns the keys, defined by the default language
+      @method getKeys
+      @since 2914-07-31
+      @return {Array} keys
+      */
+      getKeys : function () {
+        var d_lan = this.getLanguage(this.defaultLanguage);
+        var keys = [];
+        for (var i = 0; i < d_lan.medias.length; i++) {
+          //console.log(d_lan.getMedia(d_lan.medias[i].key).value.substr(0, 20));
+          if (!(d_lan.getMedia(d_lan.medias[i].key).value.indexOf('data:') == 0 &&
+              d_lan.getMedia(d_lan.medias[i].key).value.indexOf('base64') > 0))
+          {
+            keys.push(d_lan.medias[i].key);
+          }
+        }
+        return keys;
+      },
+      /**
+      use getTextMedia too get the decoded media value
+      @method setTextMedia
+      @since 2014-05-17
+      @param _k the key
+      @param _v the value
+      */
+      setTextMedia : function(_k, _v) {
+        //type64=true|false would regulate de/encoding or not
+        for (var i = 0; i < this.mediaLanguages.length; i++) {
+          if (this.mediaLanguages[i].getMedia(_k) == null) {
+            this.mediaLanguages[i].setMedia(_k, _v, true);
+          }
+        }
+      },
+      /**
+      push through for MediaLanguage.setMedia
+      the media will not be base64 encoded
+      use getMedia too get the media
+      use for Images and other natually base64 encoded media
+      @method setMedia
+      @since 2014-05-29
+      @param _k the key
+      @param _v the value - already base64 encoded
+      */
+      setMedia : function(_k, _v) {
+        //type64=true|false would regulate de/encoding or not
+        for (var i = 0; i < this.mediaLanguages.length; i++) {
+          if (this.mediaLanguages[i].getMedia(_k) == null) {
+            this.mediaLanguages[i].setMedia(_k, _v, false);
+          }
+        }
+      },
+      deleteMedia : function(_k) {
+        for (var i = 0; i < this.mediaLanguages.length; i++) {
+          this.mediaLanguages[i].deleteMedia(_k);
+        }
+      },
+      getMedia : function(_k) {
+        return this.getCurrentLanguage().getMedia(_k);
+      },
+      getTextMedia : function(_k) {
+        return this.getCurrentLanguage().getTextMedia(_k);
+      },
+      /**
+      @method load
+      @param data
+      @since 2014-05-29
+      */
+      load : function(data) {
+        this.defaultLanguage = 'en',
+        this.currentLanguage = data['currentLanguage'];
+        this.languages = data['languages'];
+        this.mediaLanguages = [];
+        for (var i = 0; i < data['mediaLanguages'].length; i++) {
+          var lan = new MediaLanguage(data['mediaLanguages'][i]['uid']);
+          lan.load(data['mediaLanguages'][i]);
+          this.mediaLanguages.push(lan);
+        }
+      }
+    };
+    Game.prototype.showMenu = function() {
+      game.menuMode = true;
+      update = true;
+    }
+    /**
     @method draw
     */
     Game.prototype.draw = function() {
       var cw = canvas.width;
       var ch = canvas.height;
-      ctx.fillStyle = '#eee';
+      ctx.fillStyle = '#f8faff';
       ctx.fillRect(0,0,cw,ch);
       ctx.fillStyle = '#000';
       var fts = Math.round(0.035*cw);
@@ -470,8 +794,8 @@
       var obj = null;
       if (game.over)
       {
-        ctx.fillText(''+atob(game.title),0.02*cw,(0.01*cw+fts)*1);
-        ctx.fillText('statistics:',0.02*cw,(0.01*cw+fts)*2);
+        ctx.fillText(''+atob(game.title),0.02*cw,(0.01*ch+fts)*1);
+        ctx.fillText('statistics:',0.02*cw,(0.01*ch+fts)*2);
         var missed = objects.length - game.order.length;
         if (missed > 0)
         {
@@ -486,16 +810,16 @@
               ctx.fillStyle = '#c00';
               //ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*cw+fts)*(4+i));
               var dep = game.getDependency('hasMissed',obj.id);
-              if (dep != null && cprior < dep.priority) { 
-                cprior = dep.priority; 
-                ctext = game.formatText(atob(dep.text)); 
+              if (dep != null && cprior < dep.priority) {
+                cprior = dep.priority;
+                ctext = game.formatText(atob(dep.text));
               }
             }
           }
           //hasMissed
           for (var j = 0; j < ctext.length; j++) {
-            ctx.fillText(ctext[j],0.02*cw,(0.01*cw+fts)*(4+j));
-          }          
+            ctx.fillText(ctext[j],0.02*cw,(0.01*ch+fts)*(4+j));
+          }
         } else {
           for (var i = 0; i < game.order.length; i++) {
             obj = game.getObject(game.order[i]);
@@ -505,13 +829,14 @@
             } else {
               ctx.fillStyle = '#c00';
             }
-            ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*cw+fts)*(3+i));
+            ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*ch+fts)*(3+i));
           }
           //isSmaller
         }
       } else {
-        ctx.fillText(''+atob(game.title),0.02*cw,0.01*cw+fts);
-        ctx.fillText(''+atob(game.quest),0.02*cw,(0.01*cw+fts)*2);
+        //game play
+        ctx.fillText(''+atob(game.title),0.02*cw,ch/3*2+0.01*ch+fts);
+        ctx.fillText(''+atob(game.quest),0.02*cw,ch/3*2+(0.01*ch+fts)*2);
         //begin of btx context
         ctx.lineWidth = 0.025 * cw;
         for (var i = 0; i < objects.length; i++)
@@ -551,20 +876,27 @@
         ctx.fillStyle = '#000';
         var fts = Math.round(0.035*cw);
         ctx.font = fts+'px Sans-Serif';
-        ctx.fillText(''+atob(game.title),0.02*cw,0.01*cw+fts);
-        ctx.fillText(''+atob(game.quest),0.02*cw,(0.01*cw+fts)*2);
+        ctx.fillText(''+atob(game.title),0.02*cw,ch/3*2+0.01*ch+fts);
+        ctx.fillText(''+atob(game.quest),0.02*cw,ch/3*2+(0.01*ch+fts)*2);
         if (game.current != null) {
-          ctx.fillText(''+game.current.getText(),0.02*cw,(0.01*cw+fts)*3);
+          ctx.fillText(''+game.current.getText(),0.02*cw,ch/3*2+(0.01*ch+fts)*3);
         } else if (game.order.length > 0) {
           var j = 0;
           for (var i = game.order.length - 1; i >= (game.order.length > 2 ? game.order.length-3 : 0); i--) {
             ctx.fillText(''+game.getObject(game.order[i]).getText(),0.02*cw,
-                    (0.01*cw+fts)*((game.order.length > 2 ? 3 : game.order.length)+(2-j)));
+                   ch/3*2+(0.01*ch+fts)*((game.order.length > 2 ? 3 : game.order.length)+(2-j)));
             j++;
           }
           if (game.currentText!= null) {
-            ctx.fillText(''+game.currentText,0.02*cw,(0.01*cw+fts)*6.25);
+            ctx.fillText(''+game.currentText,0.02*cw,ch/3*2+(0.01*ch+fts)*6.25);
           }
+        }
+        //menumode
+        if (game.menuMode) {
+          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillRect(0,0,cw, ch);
+          ctx.fillStyle = 'rgba(255,255,255,0.85)';
+          ctx.fillRect(cw/2,0,cw/2, ch);
         }
       }
     };
@@ -577,57 +909,20 @@
     var update = false;
     var body = document.body;
     var store = localStorage;
-    /*
-    short for game.showObject (Game.prototype.showObject)
-    a scriptable function
-    @method showObject
-    @param id
-    /
-    _win.showObject = function (id) {
-      game.showObject(id);
-    }
-    /
-    short for game.hideObject (Game.prototype.hideObject)
-    a scriptable function
-    @method hideObject
-    @param id
-    /
-    _win.hideObject = function (id) {
-      game.hideObject(id);
-    }
-    /
-    short for game.showText (Game.prototype.showText)
-    a scriptable function
-    @method showText
-    @param id
-    /
-    _win.showText = function (text) {
-      game.showText(text);
-    }
-    /
-    short for game.isSmaller
-    @method isSmaller
-    @param a
-    @param b
-    /
-    _win.isSmaller = function (a, b) {
-      game.isSmaller(a, b);
-    }
-    /
-    short for game.hasMissed
-    @method hasMissed
-    @param a
-    /
-    _win.hasMissed = function (a) {
-      game.hasMissed(a);
-    }*/
+    var menuMode = false;
+    var gmode = 'editor';
+    var bufferImg = null;
+    var btx = null;
+    var mouseTimer = null;
+    var canvas = null;
+    var ctx = null;
     /**
     short for document.getElement
     @method getElement
     @param t the id
     @return the HTMLdomObject
     */
-    _win.getElement = function(t){
+    win.getElement = function(t){
       return document.getElementById(t);
     };
     /**
@@ -831,7 +1126,7 @@
     /***/
     //var game = new Game();
     //for debug purpose only
-    _win.game = new Game();
+    win.game = new Game();
     //end debug
     /***/
     var editor = {};
@@ -1180,15 +1475,17 @@
     @method playGame
     */
     editor.playGame = function() {
-      editor.saveGame();
+      /*editor.saveGame();
       editor.oldGame = game;
       //new game instance
       game = editor.loadGame();
-      _win.canvas = getElement('canvas');
+      win.canvas = getElement('canvas');
       if (canvas == null) {
         canvas = createElement('canvas');
       } else {
-        body.removeChild(canvas);
+        //body.removeChild(canvas);
+        //body.appendChild(canvas);
+        ctx = canvas.getContext('2d');
       }
       var w = window.innerWidth;
       var h = window.innerHeight;
@@ -1199,7 +1496,7 @@
       canvas.height = w < h ? w : h;
       canvas.style.width = canvas.width+'px';
       canvas.style.height = canvas.height+'px';
-      _win.ctx = canvas.getContext('2d');
+      win.ctx = canvas.getContext('2d');
       canvas.style.position='absolute';
       canvas.style.left=0;
       canvas.style.top=0;
@@ -1208,7 +1505,48 @@
       getElement('playbutton').appendChild(createTextNode('stop'));
       getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
       body.appendChild(canvas);
+      game.init();*/
+      editor.saveGame();
+      editor.oldGame = game;
+
+      canvas = getElement('canvas');
+      var canvascontainer = createElement('div');
+      if (canvas == null) {
+        canvas = createElement('canvas');
+      } else {
+        body.removeChild(canvascontainer);
+      }
+      var w = window.innerWidth;
+      var h = window.innerHeight;
+      //test
+      w > 420 ? w = 420: w = w;
+      //h > 560 ? h = 560: h = h;
+      //replace this once if everything will be canvas based including the editor
+      canvas.width = w;//w < h ? w : h;
+      canvas.height = h;//w < h ? w : h;
+      canvas.style.width = canvas.width+'px';
+      canvas.style.height = canvas.height+'px';
+      //win.ctx = canvas.getContext('2d');
+      //canvas.style.position='absolute';
+      canvas.style.left=0;
+      canvas.style.top=0;
+      canvas.style.background='rgba(255,255,255,0.75)';
+      //canvas.style.position='absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+
+      getElement('playbutton').innerHTML='';
+      getElement('playbutton').appendChild(createTextNode('stop'));
+      getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
+      canvascontainer.className = 'canvas-container';
+      canvascontainer.appendChild(canvas);
+      body.appendChild(canvascontainer);
+      canvascontainer.style.display = 'block';
+      ctx = canvas.getContext('2d');
+      //new game instance      
       game.init();
+      gmode = 'game';
+      update = true;
     };
     /**
     stop the play test
@@ -1649,15 +1987,19 @@
       }
     };*/
     /**
-    an editor method
+    an general method
     @method updateDraw
     */
-    updateDraw = function() {
+    var updateDraw = function() {
       if (update) {
-        game.draw();
+        if (gmode == 'editor') {
+          //editor.draw();
+        } else {
+          game.draw();
+        }
         update = false;
       }
-      requestAnimationFrame(function() { updateDraw() } );
+      requestAnimationFrame(function() { updateDraw(); } );
     };
     /**
     an editor method
@@ -1777,7 +2119,7 @@
       ele = createElement('br');
       ele.style.clear='both';
       body.appendChild(ele);
-      _win.canvas = getElement('canvas');
+      win.canvas = getElement('canvas');
       if (canvas == null) {
         canvas = createElement('canvas');
       } else {
@@ -1792,7 +2134,7 @@
       canvas.height = w < h ? w : h;
       canvas.style.width = canvas.width+'px';
       canvas.style.height = canvas.height+'px';
-      _win.ctx = canvas.getContext('2d');
+      win.ctx = canvas.getContext('2d');
       //canvas.style.position='absolute';
       canvas.style.left=0;
       canvas.style.top=0;
@@ -1884,12 +2226,12 @@
         getElement('s_t_'+obj.id).innerHTML = '<br>';
       }
       //
-      update = true;
+      //update = true;
       requestAnimationFrame(function() { updateDraw(); } );
     };
 
-    _win.game = game;
-    _win.editor = editor;
+    win.game = game;
+    win.editor = editor;
     window.onload = function() {setTimeout(editor.init(), 100);};
   })(window)
   </script>
