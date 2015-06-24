@@ -13,12 +13,13 @@
   #grid-container { position:relative;width: 99%; max-width: 99%; }
   #grid-container:before { display: block;width: 99%; padding-top: 100%; }  
   .grid { position:relative;float:left;background:#000;border:0;margin:0.5%;width:24%;height: 24%;}
-  .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:80%;height: 80%;max-width:80%;max-height: 80%; font-size: 12px;}  
+  .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:76%;height: 76%;max-width:76%;max-height: 76%; padding: 2%; font-size: 12px;}  
   button,input,select,option,.input {display: inline-block; margin: 1%; padding: 1%; border: 1px solid rgb(153, 153, 153); box-shadow: rgb(153, 153, 153) 1px 1px 0px inset, rgb(153, 153, 153) -1px -1px 0px inset; background: #ffc;border-radius: 8px;}
   select,option,input,.input {max-width: 95%; min-width: 95%;}
+  button:active,button:focus,select:active,input:active,.input:active,select:focus,input:focus,.input:focus {outline: 0;}
   button {padding: 1.5% 3%; }
   input[type=checkbox],input[type=radio]{max-width: 6%; min-width: 6%;}
-  .input:active {background:#cc9;}
+  button:active,.input:active {background:#cc9;}
   .grid-start{background:#0c0;}
   .grid-end{background:#c00;}
   .grid-ready{background:#99c;}
@@ -26,6 +27,10 @@
   .grid.current {background:#f90;}
   .grid:active, .grid:focus {background:#f90;}
   .prompt{position: absolute; left: 1%; top: 1%; min-width: 95%;max-width: 95%; min-height: 95%;max-height: 95%; padding: 1%; z-index: 100; display: block; overflow: auto; background: rgba(253,253,253,0.95); color: #000; box-shadow: inset 1px 1px 0px #999,inset 1px 1px 0px #999;border:1px solid #999;}
+  .helptext {display: block; width: 94%; border: dotted 1px #ccc; font-size: 12px; margin-left: 1%; padding: 2%;};
+  .closer,button.closer {font-weight: bold; color: #fff; background: #c00; width: 20%; min-width: 20%; max-width: 20%;}
+  .closer:hover,.closer:focus,.closer:active {background: #f00;}
+
   /*.ingame-visible{display: block;}*/
  </style>
  <!--
@@ -833,12 +838,12 @@
     editor.mode = '';
     editor.current = null;
     editor.oldGame = null;
-    /**
+    /* *
     calls a prompt
     sets the order for the specified object by id
     and updates the appearence of the editor's output
     @method setOrder
-    */
+    /
     editor.setOrder = function(_obj_id) {
       var obj=game.getObject(_obj_id);
       var input = prompt('Type in a value between 1 to '+(game.objects.length)+' or leave the input as it is', obj.order);
@@ -860,7 +865,7 @@
       ele.innerHTML = '';
       ele.appendChild(createTextNode(obj.order));
       editor.saveGame();
-    };
+    };*/
     /**
     replacement for setOrder and setEvents
     sets the order for the specified object by id
@@ -913,20 +918,7 @@
       console.log(id,menuEntries);
       var obj = game.getObject(id);
       editor.setText(id, obj.getText());
-      var prompt = getElement('prompt');
-      if (prompt == null)
-      {
-        prompt = createElement('div');
-        prompt.className = 'prompt';
-        prompt.setAttribute('id','prompt');
-        body.appendChild(prompt);
-      }
-      prompt.innerHTML = '';
-      var ele = createElement('button');
-      ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
-      ele.appendChild(createTextNode('close'));
-      prompt.appendChild(ele);
-      prompt.appendChild(createElement('br'));
+      var prompt = editor.createPrompt();
       prompt.appendChild(createElement('hr'));
       
       for (var i = 0; i < menuEntries.length; i++) {
@@ -939,7 +931,35 @@
       prompt.style.display = 'block';
     };
     /**
-    stores the game if store is available
+    calls setText,
+    stores the game if store is available.
+    @method setStart
+    @param obj_id id of the object
+    */
+    editor.setStart = function(obj_id) {
+      editor.mode='setstart';
+      editor.setText(obj_id,null);
+      getElement('prompt').style.display = 'none';
+      editor.saveGame();
+    }
+    /**
+    calls setText,
+    stores the game if store is available.
+    @method setStop
+    @param obj_id id of the object
+    */
+    editor.setStop = function(obj_id) {
+      editor.mode='setend';
+      editor.setText(obj_id,null);
+      getElement('prompt').style.display = 'none';
+      editor.saveGame();
+    }
+    /**
+    this method makes much more as the name tells you.
+    it is used to set the start & stop tile finally.
+    If not, it will  prompt for a text for the specified object 
+    and set the text and it updates the output.
+    stores the game if store is available.
     @method setText
     @param id id of the object
     @param text the text for the object
@@ -986,10 +1006,11 @@
       }
       if (_text==null) {
         if (obj.text==null) {
-          _text=prompt('What\'s up next?','');
+          _text = editor.showPrompt('What\'s up next?','', 'editor.setText(\''+obj.id+'\',');
         } else {
-          _text=prompt('What\'s up next?',obj.getText());
+          _text = editor.showPrompt('What\'s up next?',obj.getText(), 'editor.setText(\''+obj.id+'\',');
         }
+        return;
       }
       obj.setText(_text);
       if (game.start == null)
@@ -1071,21 +1092,89 @@
     /**
     @method setQuest
     */
-    editor.setQuest = function() {
-      var text = prompt('Enter the quest of the game.', game.quest==null?'':atob(game.quest));
+    editor.setQuest = function(text) {
+      if (text == null || text == '') {
+        editor.showPrompt('Enter the quest of the game.', game.quest==null?'':atob(game.quest), 'editor.setQuest(');
+        return;
+      }
       game.quest = btoa(text);
-      getElement('quest').innerHTML = atob(game.quest);
+      //getElement('quest').innerHTML = atob(game.quest);
+      getElement('quest').value = atob(game.quest);
       editor.saveGame();
     };
     /**
     @method setTitle
     */
-    editor.setTitle = function() {
-      var text = prompt('Enter the game\'s title.', game.title==null?'':atob(game.title));
+    editor.setTitle = function(text) {
+      if (text == null || text == '') {
+        editor.showPrompt('Enter the game\'s title.', game.title==null?'':atob(game.title), 'editor.setTitle(');
+        return; 
+      }
       game.title = btoa(text);
-      getElement('title').innerHTML = atob(game.title);
+      //getElement('title').innerHTML = atob(game.title);
+      getElement('title').value = atob(game.title);
       editor.saveGame();
     };
+    /**
+    @method showPrompt()
+    @param txt
+    @param value
+    @param callback
+    */
+    editor.showPrompt = function(txt, value, callback) {
+      var prompt = editor.createPrompt();
+      prompt.appendChild(createTextNode(txt));
+      var ele = createElement('input');
+      if (callback == null) {
+        callback = value;
+        value = null;
+      } else {
+        if (value == 'null' || value == null) value = '';
+        ele.className = 'input';
+        ele.value = value;
+        ele.setAttribute('id','prompt-input');
+        prompt.appendChild(ele);
+        prompt.appendChild(createElement('br'));
+      }
+      prompt.appendChild(createElement('br'));
+      ele = createElement('button');
+      if (value === null) {
+        if (callback == null) {
+          ele.setAttribute('onclick','getElement(\'prompt\').style.display = \'none\';');
+        } else {
+          ele.setAttribute('onclick',callback+');getElement(\'prompt\').style.display = \'none\';');
+        }
+      } else {
+        ele.setAttribute('onclick',callback+'getElement(\'prompt-input\').value);getElement(\'prompt\').style.display = \'none\';');
+      }
+      ele.appendChild(createTextNode('done'));
+      prompt.appendChild(ele);
+      prompt.appendChild(createElement('br'));
+      prompt.style.display = 'block';
+    };
+    /**
+    */
+    editor.createPrompt = function() {
+      var prompt = getElement('prompt');
+      if (prompt == null)
+      {
+        prompt = createElement('div');
+        prompt.className = 'prompt';
+        prompt.setAttribute('id','prompt');
+        body.appendChild(prompt);
+      }
+      prompt.innerHTML = '';
+      var ele = createElement('button');
+      ele.className='closer';
+      ele.style.fontWeight = 'bold'; 
+      ele.style.color = '#fff'; 
+      ele.style.background = '#c00';
+      ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
+      ele.appendChild(createTextNode('close'));      
+      prompt.appendChild(ele);
+      prompt.appendChild(createElement('br'));
+      return prompt;
+    }
     /**
     a test and play method
     @method playGame
@@ -1115,7 +1204,8 @@
       canvas.style.left=0;
       canvas.style.top=0;
       canvas.style.background='rgba(255,255,255,0.75)';
-      getElement('playbutton').value='stop';
+      getElement('playbutton').innerHTML='';
+      getElement('playbutton').appendChild(createTextNode('stop'));
       getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
       body.appendChild(canvas);
       game.init();
@@ -1129,7 +1219,8 @@
       game = editor.oldGame;
       editor.oldGame = null;
       canvas.style.display = 'none';
-      getElement('playbutton').value='play';
+      getElement('playbutton').innerHTML='';
+      getElement('playbutton').appendChild(createTextNode('play'));
       getElement('playbutton').setAttribute('onclick' , 'editor.playGame();');
     };
     /**
@@ -1231,34 +1322,22 @@
     */
     editor.showOrderAndEventsPrompt = function(obj_id) {
       var obj = game.getObject(obj_id);
-      var prompt = getElement('prompt');
-      //alert('prompt: '+prompt);
-      if (prompt == null)
-      {
-        prompt = createElement('div');
-        prompt.className = 'prompt';
-        prompt.setAttribute('id','prompt');
-        body.appendChild(prompt);
-      }
-      prompt.innerHTML = '';
-      var ele = createElement('button');
-      ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
-      ele.appendChild(createTextNode('close'));
-      prompt.appendChild(ele);
-      prompt.appendChild(createElement('br'));
+      var prompt = editor.createPrompt();
       prompt.appendChild(createTextNode('order'));
-      prompt.appendChild(createElement('br'));
+      //prompt.appendChild(createElement('br'));
       var span = createElement('input');
-      span.style.marginRight='1px';
-      span.style.display='inline-block';
-      span.style.minWidth='40px';
-      span.style.border = 'solid 1px #999';
+      span.className = 'input';
+      span.style.marginRight='1px';      
+      span.style.minWidth='12.5%';      
       span.setAttribute('id','input_ord_'+obj.id);
       span.value = obj.order;
       prompt.appendChild(span);
-      prompt.appendChild(createElement('br'));
-      prompt.appendChild(createTextNode('event: showObject([object id]), hideObject([object id]), showText([a text])'));
-      prompt.appendChild(createElement('br'));
+      //prompt.appendChild(createElement('br'));
+      span = createElement('span');
+      span.className = 'helptext';
+      span.appendChild(createTextNode('event: showObject([object id]), hideObject([object id]), showText([a text])'));
+      prompt.appendChild(span);
+      //prompt.appendChild(createElement('br'));
       span = createElement('button');
       span.appendChild(createTextNode('add event'));
       span.setAttribute('onclick', 'editor.addEvent(\''+obj.id+'\');');
@@ -1342,27 +1421,15 @@
     @method showDependenciesPrompt
     */
     editor.showDependenciesPrompt = function(obj_id) {
-      var prompt = getElement('prompt');
-      //alert('prompt: '+prompt);
-      if (prompt == null)
-      {
-        prompt = createElement('div');
-        prompt.className = 'prompt';
-        prompt.setAttribute('id','prompt');
-        body.appendChild(prompt);
-      }
-      prompt.innerHTML = '';
-      var ele = createElement('button');
-      ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
-      ele.appendChild(createTextNode('close'));
-      prompt.appendChild(ele);
-      prompt.appendChild(createElement('br'));
-      prompt.appendChild(createTextNode('dependencies: isSmaller, hasMissed'));
-      prompt.appendChild(createElement('br'));
-      prompt.appendChild(createTextNode('{priority: 0, method:\'isSmaller\', text: \'show this text\', params: [a,b]}'));
-      prompt.appendChild(createElement('br'));
-      prompt.appendChild(createTextNode('{priority: 1, method:\'hasMissed\', text: \'show this text because of the higher priority\', params: [a]}'));
-      prompt.appendChild(createElement('br'));
+      var prompt = editor.createPrompt();
+      var span = createElement('span');
+      span.className = 'helptext';
+      span.appendChild(createTextNode('dependencies: isSmaller, hasMissed'));
+      span.appendChild(createElement('br'));
+      span.appendChild(createTextNode('{priority: 0, method:\'isSmaller\', text: \'show this text\', params: [a,b]}'));
+      span.appendChild(createElement('br'));
+      span.appendChild(createTextNode('{priority: 1, method:\'hasMissed\', text: \'show this text because of the higher priority\', params: [a]}'));
+      prompt.appendChild(span);
       ele = createElement('div');
       var dependencies = game.dependencies;
       //console.log(dependencies.length);
@@ -1567,9 +1634,9 @@
       console.log(game.dependencies);
       getElement('prompt').style.display = 'none';
     };
-    /**
+    /* *
     @method setEvent
-    */
+    * /
     editor.setEvent = function(id) {
       var obj = game.getObject(id);
       var code = prompt('add some event code: showObject, hideObject, showText', obj.event==null?'':atob(obj.event) );
@@ -1580,17 +1647,17 @@
         //editor.setDependecies(obj);
         editor.saveGame();
       }
-    };
+    };*/
     /**
     an editor method
     @method updateDraw
     */
-    editor.updateDraw = function() {
+    updateDraw = function() {
       if (update) {
-        editor.draw();
+        game.draw();
         update = false;
       }
-      requestAnimationFrame(function() { editor.updateDraw() } );
+      requestAnimationFrame(function() { updateDraw() } );
     };
     /**
     an editor method
@@ -1675,20 +1742,37 @@
       //game = new Game();
       game = editor.loadGame();
       var ele = null;
-      ele = createElement('span');
+      ele = createElement('button');
+      ele.style.backgroundImage = 'url(https://hogventure.com/img/menu0.png)';
+      ele.style.backgroundSize = '100%';
+      ele.style.width = '12.5%';
+      body.appendChild(ele);
+      ele.style.height = ele.offsetWidth+'px';
+      ele.style.margin = '1%';
+      ele.style.cssFloat = 'left';
+      ele.setAttribute('onclick','editor.showMenu();');
+      //***************************//
+      ele = createElement('input');
       ele.className = 'input';
+      ele.style.minWidth = ele.style.maxWidth = '80%';
+      //ele.style.cssFloat = 'right';
       ele.setAttribute('onclick','editor.setTitle();');
-      ele.setAttribute('id','title');
-      ele.appendChild(createTextNode(game.title==null?'click to edit title.':atob(game.title)));
+      ele.setAttribute('id','title');      
+      //ele.appendChild(createTextNode(game.title==null?'click to edit title.':atob(game.title)));
+      ele.value = (game.title==null?'click to edit title.':atob(game.title));
       body.appendChild(ele);
-      ele = createElement('br');
-      ele.style.clear='both';
-      body.appendChild(ele);
-      ele = createElement('span');
+      //ele = createElement('br');
+      //ele.style.clear='both';
+      //body.appendChild(ele);
+      //ele = createElement('span');
+      ele = createElement('input');
       ele.className = 'input';
+      ele.style.minWidth = ele.style.maxWidth = '80%';
+      //ele.style.cssFloat = 'right';
       ele.setAttribute('onclick','editor.setQuest();');
       ele.setAttribute('id','quest');
-      ele.appendChild(createTextNode(game.quest==null?'click and enter quest.':atob(game.quest)));
+      //ele.appendChild(createTextNode(game.quest==null?'click and enter quest.':atob(game.quest)));
+      ele.value = (game.quest==null?'click and enter quest.':atob(game.quest));
       body.appendChild(ele);
       ele = createElement('br');
       ele.style.clear='both';
@@ -1713,8 +1797,6 @@
       canvas.style.left=0;
       canvas.style.top=0;
       canvas.style.background='rgba(255,255,255,0.75)';
-      //getElement('playbutton').value='stop';
-      //getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
       //body.appendChild(canvas);
 	  var grid = createElement('div');
 	  grid.setAttribute('id','grid-container');
@@ -1731,7 +1813,10 @@
           'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
               '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+ 
               '{\'txt\':\'set order and events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
-              '{\'txt\':\'set dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
+              '{\'txt\':\'set dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
+              '{\'txt\':\'set start\',\'method\':\'editor.setStart(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
+              '{\'txt\':\'set stop\',\'method\':\'editor.setStop(\\\''+'o_'+i+'_'+j+'\\\')\'}'+
+              ']);');
           ele = createElement('div');
           ele.className = 'grid-element';
           ele.setAttribute('id','o_'+i+'_'+j);
@@ -1761,14 +1846,16 @@
         grid.appendChild(ele);
       }
 	  
+      //
       ele = createElement('button');
       ele.appendChild(createTextNode('set start'));
-      ele.setAttribute('onclick','alert(\'The next click will set the new start object.\');editor.mode=\'setstart\';');
+      ele.setAttribute('onclick','editor.showPrompt(\'The next click will set the new start object.\', null, null);editor.mode=\'setstart\';');
       body.appendChild(ele);
       ele = createElement('button');
       ele.appendChild(createTextNode('set end'));
-      ele.setAttribute('onclick','alert(\'The next click will set the new end object.\');editor.mode=\'setend\';');
+      ele.setAttribute('onclick','editor.showPrompt(\'The next click will set the new end object.\',null,null);editor.mode=\'setend\';');
       body.appendChild(ele);
+      //
       ele = createElement('button');
       ele.appendChild(createTextNode('new game'));
       ele.setAttribute('onclick','editor.newGame();');
@@ -1776,7 +1863,7 @@
       ele = createElement('button');
       ele.setAttribute('id','playbutton');
       ele.appendChild(createTextNode('play'));
-      ele.setAttribute('onclick','alert(\'Here you can play and test you game.\');editor.playGame();');
+      ele.setAttribute('onclick','editor.showPrompt(\'Here you can play and test you game.\',\'editor.playGame(\',null);');
       body.appendChild(ele);
       ele = createElement('div');
       //ele.style.height = '250px';
@@ -1798,7 +1885,7 @@
       }
       //
       update = true;
-      requestAnimationFrame(function() {editor.updateDraw();} );
+      requestAnimationFrame(function() { updateDraw(); } );
     };
 
     _win.game = game;
