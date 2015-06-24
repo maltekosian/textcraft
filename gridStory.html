@@ -773,6 +773,7 @@
             ctx.fillText(ctext[j],0.02*cw,(0.01*ch+fts)*(4+j));
           }
         } else {
+          var cprior = 0;
           var ctext = [];
           for (var i = 0; i < game.order.length; i++) {
             obj = game.getObject(game.order[i]);
@@ -781,15 +782,18 @@
               ctx.fillStyle = '#0c0';
             } else {
               ctx.fillStyle = '#c00';
-              ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*ch+fts)*(3+i));
               var dep = game.getDependency('isSmaller',obj.id);
+              console.log(dep);
               if (dep != null && cprior < dep.priority) {
                 cprior = dep.priority;
                 ctext = game.formatText(atob(dep.text));
+              } else {
+                ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*ch+fts)*(3+i));
               }
             }
           }
           //isSmaller
+          ctx.fillStyle = '#c00';
           for (var j = 0; j < ctext.length; j++) {
             ctx.fillText(ctext[j],0.02*cw,(0.01*ch+fts)*(4+j));
           }
