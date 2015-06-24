@@ -11,9 +11,9 @@
   <style>
   body {background: #fff; margin: 0; overflow: hidden;font-family:sans-serif;font-size: 15px;}
   #grid-container { position:relative;width: 99%; max-width: 99%; }
-  #grid-container:before { display: block;width: 99%; padding-top: 100%; }  
+  #grid-container:before { display: block;width: 99%; padding-top: 100%; }
   .grid { position:relative;float:left;background:#000;border:0;margin:0.5%;width:24%;height: 24%;}
-  .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:76%;height: 76%;max-width:76%;max-height: 76%; padding: 2%; font-size: 12px;}  
+  .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:76%;height: 76%;max-width:76%;max-height: 76%; padding: 2%; font-size: 12px;}
   button,input,select,option,.input {display: inline-block; margin: 1%; padding: 1%; border: 1px solid rgb(153, 153, 153); box-shadow: rgb(153, 153, 153) 1px 1px 0px inset, rgb(153, 153, 153) -1px -1px 0px inset; background: #ffc;border-radius: 8px;}
   select,option,input,.input {max-width: 95%; min-width: 95%;}
   button:active,button:focus,select:active,input:active,.input:active,select:focus,input:focus,.input:focus {outline: 0;}
@@ -36,7 +36,7 @@
  <!--
  NEW create a play canvas
  and an HTML editor
- 
+
  The title:
  Hurry, you are too late. To your job as quick as possible!
  The correct order:
@@ -100,7 +100,7 @@
  -->
  <!--
  BUGS:
- 
+
  TODOS:
  -> find a way to edit the evaluation tool, dependicies and the reporting output
     2 smaler 1 -> you made something in the wrong order
@@ -381,9 +381,11 @@
         pressed = true;
         var obj = null;
         var yo = y * canvas.height / canvas.width;
+        console.log('y='+y+',x='+x+',yo='+yo);
         for (var i = 0; i < game.objects.length; i++) {
           obj = game.objects[i];
           if (obj.pointHits(x,yo) && obj.active) {
+            //find the current object
             game.current = obj;
           }
         }
@@ -392,7 +394,7 @@
         mx = x;
         my = y;
         if (game.current == null) {
-          this.mousetime = setTimeout(function() { game.showMenu(); }, 1000);
+          //this.mousetime = setTimeout(function() { game.showMenu(); }, 1000);
         }
         update = true;
       }
@@ -422,6 +424,7 @@
     @param y the y coordinate in 0 to 1 .
     */
     Game.prototype.mouseReleased = function(x,y) {
+      console.log('released->pressed='+pressed,x,y);
       if (pressed)
       {
         console.log(x,y);
@@ -432,6 +435,7 @@
             game.mousetime = null;
           }
           if (!game.over) {
+
             if (game.current != null && game.start != null && (
                 (game.current.id != game.start &&
                 game.getObject(game.start).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)) ||
@@ -439,6 +443,7 @@
                 game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2))
                ))
             {
+              console.log(game.start+'-'+game.current.id,game.getObject(game.start));
               if (game.current.id == game.start &&
                  game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)
                  )
@@ -507,63 +512,10 @@
         }
       }
       game.over = false;
-      /*if ('ontouchstart' in window)
-      {
-        console.log('using touch');
-        canvas.addEventListener('touchstart',
-        function(eve) {
-          game.mousePressed(eve.touches[0].pageX/canvas.width,
-            eve.touches[0].pageY/canvas.width);
-        },
-        false);
-        canvas.addEventListener('touchmove',
-        function(eve) {
-          game.mx = eve.touches[0].pageX/canvas.width;
-          game.my = eve.touches[0].pageY/canvas.width;
-          game.mouseMoved(game.mx,game.my);
-        },
-        false);
-        canvas.addEventListener('touchend',
-        function(eve) {
-          if (!game.mend) {
-            game.mend = true;
-            game.mouseReleased(game.mx, game.my);
-          }
-        },
-        false);
-        canvas.addEventListener('touchcancel',
-        function(eve) {
-          if (!game.mend) {
-            game.mend = true;
-            game.mouseReleased(game.mx, game.my);
-          }
-        },
-        false);
-      }
-      canvas.addEventListener('mousedown',
-      function(eve) {
-        game.mousePressed(eve.pageX/canvas.width,
-          eve.pageY/canvas.width);
-      },
-      false);
-      canvas.addEventListener('mousemove',
-      function(eve) {
-        game.mx = eve.pageX/canvas.width;
-        game.my = eve.pageY/canvas.width;
-        game.mouseMoved(game.mx,game.my);
-      },
-      false);
-      canvas.addEventListener('mouseup',
-      function(eve) {
-        game.mouseReleased(eve.pageX/canvas.width,
-          eve.pageY/canvas.width);
-      },
-      false);*/
-
       update = true;
       //requestAnimationFrame(function() { game.updateGraphics(); });
     };
-    /***/
+    /*
     Game.prototype.updateGraphics = function() {
       if (update)
       {
@@ -571,7 +523,7 @@
         game.draw();
       }
       requestAnimationFrame(function() { game.updateGraphics(); });
-    };
+    };**/
     /**
     formats the text onliner in a readable and screen fitting text array
     @method formatText
@@ -821,6 +773,7 @@
             ctx.fillText(ctext[j],0.02*cw,(0.01*ch+fts)*(4+j));
           }
         } else {
+          var ctext = [];
           for (var i = 0; i < game.order.length; i++) {
             obj = game.getObject(game.order[i]);
             console.log(obj);
@@ -828,10 +781,18 @@
               ctx.fillStyle = '#0c0';
             } else {
               ctx.fillStyle = '#c00';
+              ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*ch+fts)*(3+i));
+              var dep = game.getDependency('isSmaller',obj.id);
+              if (dep != null && cprior < dep.priority) {
+                cprior = dep.priority;
+                ctext = game.formatText(atob(dep.text));
+              }
             }
-            ctx.fillText(obj.id+' '+obj.order,0.02*cw,(0.01*ch+fts)*(3+i));
           }
           //isSmaller
+          for (var j = 0; j < ctext.length; j++) {
+            ctx.fillText(ctext[j],0.02*cw,(0.01*ch+fts)*(4+j));
+          }
         }
       } else {
         //game play
@@ -905,6 +866,7 @@
     var px = 0;
     var py = 0;
     var pressed = false;
+    /**mend = mouse end fire only once*/
     var mend = false;
     var update = false;
     var body = document.body;
@@ -995,7 +957,7 @@
               case 5:
               game[this.events[i].method](this.events[i].values[0],
               this.events[i].values[1],this.events[i].values[2],
-              this.events[i].values[3],this.events[i].values[4]);              
+              this.events[i].values[3],this.events[i].values[4]);
               break;
               default:
               game[this.events[i].method]();
@@ -1215,7 +1177,7 @@
       editor.setText(id, obj.getText());
       var prompt = editor.createPrompt();
       prompt.appendChild(createElement('hr'));
-      
+
       for (var i = 0; i < menuEntries.length; i++) {
         ele = createElement('div');
         prompt.appendChild(ele);
@@ -1252,7 +1214,7 @@
     /**
     this method makes much more as the name tells you.
     it is used to set the start & stop tile finally.
-    If not, it will  prompt for a text for the specified object 
+    If not, it will  prompt for a text for the specified object
     and set the text and it updates the output.
     stores the game if store is available.
     @method setText
@@ -1403,7 +1365,7 @@
     editor.setTitle = function(text) {
       if (text == null || text == '') {
         editor.showPrompt('Enter the game\'s title.', game.title==null?'':atob(game.title), 'editor.setTitle(');
-        return; 
+        return;
       }
       game.title = btoa(text);
       //getElement('title').innerHTML = atob(game.title);
@@ -1461,11 +1423,11 @@
       prompt.innerHTML = '';
       var ele = createElement('button');
       ele.className='closer';
-      ele.style.fontWeight = 'bold'; 
-      ele.style.color = '#fff'; 
+      ele.style.fontWeight = 'bold';
+      ele.style.color = '#fff';
       ele.style.background = '#c00';
       ele.setAttribute('onclick','getElement(\'prompt\').style.display=\'none\';');
-      ele.appendChild(createTextNode('close'));      
+      ele.appendChild(createTextNode('close'));
       prompt.appendChild(ele);
       prompt.appendChild(createElement('br'));
       return prompt;
@@ -1511,11 +1473,11 @@
 
       canvas = getElement('canvas');
       var canvascontainer = createElement('div');
-      if (canvas == null) {
-        canvas = createElement('canvas');
-      } else {
+      if (canvas != null) {
         body.removeChild(canvascontainer);
       }
+	  var canvascontainer = createElement('div');
+      canvas = createElement('canvas');
       var w = window.innerWidth;
       var h = window.innerHeight;
       //test
@@ -1534,6 +1496,63 @@
       //canvas.style.position='absolute';
       canvas.style.top = '0';
       canvas.style.left = '0';
+      bufferImg = createElement('canvas');
+      bufferImg.width = canvas.width;//400|800|1200|1600|2000|2400
+      bufferImg.height = canvas.width;//225|450|675|900|1125|1350
+      btx = bufferImg.getContext('2d');
+      //add the touch and mouselisteners to the canvas now.
+      if ('ontouchstart' in window) {
+        console.log('using touch');
+        canvas.addEventListener('touchstart',
+        function(eve) {
+          eve.preventDefault();
+          mousePressed(eve.touches[0].pageX/canvas.width,eve.touches[0].pageY/canvas.height);
+        },
+        false);
+        canvas.addEventListener('touchmove',
+        function(eve) {
+          eve.preventDefault();
+          mx = eve.touches[0].pageX/canvas.width;
+          my = eve.touches[0].pageY/canvas.height;
+          mouseMoved(mx,my);
+        },
+        false);
+        canvas.addEventListener('touchend',
+        function(eve) {
+          eve.preventDefault();
+          //if (!mend) {
+            mend = true;
+            mouseReleased(mx, my);
+          //}
+        },
+        false);
+        canvas.addEventListener('touchcancel',
+        function(eve) {
+          eve.preventDefault();
+          //if (!mend) {
+            mend = true;
+            mouseReleased(mx, my);
+          //}
+        },
+        false);
+      } //else {
+      canvas.addEventListener('mousedown',
+      function(eve) {
+        mousePressed(eve.pageX/canvas.width,eve.pageY/canvas.height);
+      },
+      false);
+      canvas.addEventListener('mousemove',
+      function(eve) {
+        mx = eve.pageX/canvas.width;
+        my = eve.pageY/canvas.height;
+        mouseMoved(mx,my);
+      },
+      false);
+      canvas.addEventListener('mouseup',
+      function(eve) {
+        mouseReleased(eve.pageX/canvas.width,eve.pageY/canvas.height);
+      },
+      false);
 
       getElement('playbutton').innerHTML='';
       getElement('playbutton').appendChild(createTextNode('stop'));
@@ -1543,7 +1562,7 @@
       body.appendChild(canvascontainer);
       canvascontainer.style.display = 'block';
       ctx = canvas.getContext('2d');
-      //new game instance      
+      //new game instance
       game.init();
       gmode = 'game';
       update = true;
@@ -1665,8 +1684,8 @@
       //prompt.appendChild(createElement('br'));
       var span = createElement('input');
       span.className = 'input';
-      span.style.marginRight='1px';      
-      span.style.minWidth='12.5%';      
+      span.style.marginRight='1px';
+      span.style.minWidth='12.5%';
       span.setAttribute('id','input_ord_'+obj.id);
       span.value = obj.order;
       prompt.appendChild(span);
@@ -1707,14 +1726,14 @@
         ele.setAttribute('id', 'eve_values_'+i);
         ele.style.cssFloat='left';
         ele.style.width = obj.events[i].method=='showText' ? '98%':'48%';
-        ele.value = 
+        ele.value =
             obj.events[i].method=='showText' ? atob(obj.events[i].values) : obj.events[i].values;
         span.appendChild(ele);
         ele = createElement('br');
         ele.style.clear = 'both';
-        span.appendChild(ele);        
+        span.appendChild(ele);
         span.appendChild(createElement('hr'));
-      }      
+      }
       prompt.appendChild(createElement('br'));
       prompt.appendChild(createElement('hr'));
       span = createElement('button');
@@ -2016,7 +2035,7 @@
       ctx.font = fts+'px Sans-Serif';
       var objects = game.objects;
       var obj = null;
-      {//game or editor 
+      {//game or editor
         //ctx.fillText(''+atob(game.title),0.02*cw,0.01*cw+fts);
         //ctx.fillText(''+atob(game.quest),0.02*cw,(0.01*cw+fts)*2);
         //begin of btx context
@@ -2077,6 +2096,55 @@
       //}//draw menu, inputs, prompts and selects here
     };
     /**
+    */
+    editor.createUid = function() {
+      var abc = 'abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      var uid = '';
+      while (uid.length < editor.uidMax || editor.hasUid(uid)) {
+         uid = '';
+         for (var i = 0; i < editor.uidMax; i++)
+         {
+           uid = uid + abc.substr(Math.floor(Math.random()*abc.length), 1);
+         }
+         if (!isNaN(uid))
+         {
+           uid = '_'+uid;
+         }
+      }
+      editor.addUid(uid);
+      return uid;
+    };
+    /**
+    @method mousePressed
+    */
+    var mousePressed = function(x,y) {
+      if (gmode == 'editor') {
+        //editor.mousePressed(x,y);
+      } else {
+        game.mousePressed(x,y);
+      }
+    };
+    /**
+    @method mouseMoved
+    */
+    var mouseMoved = function(x,y) {
+      if (gmode == 'editor') {
+        //editor.mouseMoved(x,y);
+      } else {
+        game.mouseMoved(x,y);
+      }
+    };
+    /**
+    @method mouseReleased
+    */
+    var mouseReleased = function(x,y) {
+      if (gmode == 'editor') {
+        //editor.mouseReleased(x,y);
+      } else {
+        game.mouseReleased(x,y);
+      }
+    };
+    /**
     editor method
     @method init
     */
@@ -2099,7 +2167,7 @@
       ele.style.minWidth = ele.style.maxWidth = '80%';
       //ele.style.cssFloat = 'right';
       ele.setAttribute('onclick','editor.setTitle();');
-      ele.setAttribute('id','title');      
+      ele.setAttribute('id','title');
       //ele.appendChild(createTextNode(game.title==null?'click to edit title.':atob(game.title)));
       ele.value = (game.title==null?'click to edit title.':atob(game.title));
       body.appendChild(ele);
@@ -2149,11 +2217,11 @@
         for (var j = 0; j < 4; j++)
         {
 		    elep= createElement('div');
-		    elep.className = 'grid';	
+		    elep.className = 'grid';
 		    elep.setAttribute('id','po_'+i+'_'+j);
-		    elep.setAttribute('onclick',		
+		    elep.setAttribute('onclick',
           'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
-              '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+ 
+              '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+
               '{\'txt\':\'set order and events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
               '{\'txt\':\'set dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
               '{\'txt\':\'set start\',\'method\':\'editor.setStart(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
@@ -2164,7 +2232,7 @@
           ele.setAttribute('id','o_'+i+'_'+j);
           //ele.setAttribute('onclick',
           //    'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
-          //    '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+ 
+          //    '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+
           //    '{\'txt\':\'events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
           //    '{\'txt\':\'dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
           ele.appendChild(createTextNode(' '+'o_'+i+'_'+j));
@@ -2187,7 +2255,7 @@
         ele.style.clear='both';
         grid.appendChild(ele);
       }
-	  
+
       //
       ele = createElement('button');
       ele.appendChild(createTextNode('set start'));
