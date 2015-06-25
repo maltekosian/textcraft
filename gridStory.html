@@ -1203,8 +1203,8 @@
       while (getElement('select_eve_method_'+i) != null) {
         action = getElement('select_eve_method_'+i).value;
         obj.events[i].method = action;
-        obj.events[i].values = (action == 'showText' ? 
-          btoa(getElement('input_eve_values_'+i).value) : getElement('input_eve_values_'+i).value);
+        obj.events[i].values = [(action == 'showText' ? 
+          btoa(getElement('input_eve_values_'+i).value) : getElement('input_eve_values_'+i).value)];
         i++;
         //one after an other
       }
