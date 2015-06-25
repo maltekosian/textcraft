@@ -834,11 +834,25 @@
               ctx.strokeStyle = 'rgba(51,51,51,0.5)';
             }
             if (game.current != null && obj.id == game.current.id) {
-              ctx.strokeStyle = '#f90';
+              ctx.strokeStyle = '#f90';      
+            } else {
+              ctx.fillRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
+              ctx.strokeRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
             }
-            ctx.fillRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
-            ctx.strokeRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
           }
+        }
+        //finally draw the current object.
+        if (game.current != null) {
+          obj = game.current;
+          //if (obj.active) {
+          ctx.fillStyle = '#99c';
+          //}
+          if (obj.id == game.end) {
+            ctx.fillStyle = '#c00';
+          }
+          ctx.strokeStyle = '#f90';
+          ctx.fillRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
+          ctx.strokeRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
         }
         //end of btx context
         ctx.fillStyle = '#000';
