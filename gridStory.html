@@ -14,7 +14,7 @@
   #grid-container:before { display: block;width: 99%; padding-top: 100%; }
   .grid { position:relative;float:left;background:#000;border:0;margin:0.5%;width:24%;height: 24%;}
   .grid-ready,.grid-end,.grid-element,.grid-start{ background:#ffc;margin: 10% 0 0 10%; width:76%;height: 76%;max-width:76%;max-height: 76%; padding: 2%; font-size: 12px;}
-  button,input,select,option,.input {display: inline-block; margin: 1%; padding: 1%; border: 1px solid rgb(153, 153, 153); box-shadow: rgb(153, 153, 153) 1px 1px 0px inset, rgb(153, 153, 153) -1px -1px 0px inset; background: #ffc;border-radius: 8px;}
+  button,input,select,option,.input {display: inline-block; margin: 1%; padding: 1%; border: 1px solid rgb(153, 153, 153); box-shadow: rgb(153, 153, 153) 1px 1px 0px inset, rgb(153, 153, 153) -1px -1px 0px inset; background: #ffc;border-radius: 8px;font-family:sans-serif;font-size:15px;}
   select,option,input,.input {max-width: 95%; min-width: 95%;}
   button:active,button:focus,select:active,input:active,.input:active,select:focus,input:focus,.input:focus {outline: 0;}
   button {padding: 1.5% 3%; }
@@ -975,16 +975,17 @@
       }
       /**
       @method setEvent
-      @param _code the code to be performed on the clicked|touched|selected event
+      @param action the action to be performed on the clicked|touched|selected event
       */
-      this.setEvent = function(_code) {
+      this.setEvent = function(code) {
         /*var events = btoa(_code).split(',');
         for (var i = 0; i < this.events.length; i++)
         {
-          console.log(this.events[i][0],this.events[i][1].replace(/)/,''));
-          //this.event.push(new GameEvent(this.event[i][0],this.event[i][1].replace(/)/,'')););
+          console.log(this.event[i][0],this.event[i][1].replace(/)/,''));
+          //this.events.push(new GameEvent(this.event[i][0],this.event[i][1].replace(/)/,'')););
         }*/
         //this.event = new GameEvent(this.event[0],this.event[1].replace(/)/,''));
+        this.events.push(new GameEvent(action['method'],action['values']));
       }
       /**
       @method getText
@@ -1114,11 +1115,11 @@
       }
       catch (ex)
       {
-        alert ('Choose a valid value, please!')
+        editor.showAlert ('Choose a valid value, please!')
         return;
       }
       if (input < 0 || input > game.objects.length) {
-        alert ('Choose a valid value, please!');
+        editor.showAlert ('Choose a valid value, please!');
         return;
       }
       obj.order = input;
@@ -1144,28 +1145,39 @@
       }
       catch (ex)
       {
-        alert ('Choose a valid value, please!')
+        editor.showAlert('Choose a valid value, please!')
         return;
       }
       if (input < 0 || input > game.objects.length) {
-        alert ('Choose a valid value, please!');
+        editor.showAlert('Choose a valid value, please!');
         return;
       }
       obj.order = input;
+      //setting the output order element (bottom left orange box)
       var ele = getElement('ord_'+obj.id);
       ele.innerHTML = '';
       ele.appendChild(createTextNode(obj.order));
-      var code = getElement('input_eve_'+obj_id).value;
-      //select of method (showObject , hideObject) -> showElement select object (order, id, text) -> set value
-      //showText -> show text input -> obj.setText(input.value)
-      //event = { action:[methodname], value:[value]}
-      //usage call game[event.action](event.value);
-      //uses the call action model with predefined actions instead of function(code)
-      if (code != '')
-      {
-        obj.setEvent(code);
+      //      
+      var i = 0;
+      var action = null;
+      //gathering all event selects and inputs
+      //this is a simple numeric order
+      while (getElement('select_eve_method_'+i) != null) {
+        action = getElement('select_eve_method_'+i).value;
+        obj.events[i].method = action;
+        obj.events[i].values = (action == 'showText' ? 
+          btoa(getElement('input_eve_values_'+i).value) : getElement('input_eve_values_'+i).value);
+        i++;
+        //one after an other
       }
-      console.log(input,obj.order, code,atob(obj.event));
+      //setting the new object grid content
+      ele = getElement(''+obj_id);
+      ele.innerHTML = '';
+      ele.appendChild(createTextNode(obj_id));
+      ele.appendChild(createElement('br'));
+      ele.appendChild(createTextNode(obj.order));
+
+      console.log(input,obj.order,obj.events);
       editor.saveGame();
       getElement('prompt').style.display = 'none';
     }
@@ -1316,7 +1328,7 @@
         span.style.minWidth='78%';
         span.style.maxWidth='78%';
         span.setAttribute('id','s_t_'+obj.id);
-        span.setAttribute('onclick', 'editor.showDependenciesPrompt(\''+obj.id+'\');');
+        span.setAttribute('onclick', 'editor.setText(\''+obj.id+'\',null);');
         span.appendChild(createTextNode(_text));
         ele2.appendChild(span);
         ele.appendChild(ele2);
@@ -1715,7 +1727,7 @@
       //console.log(''+obj.events.length);
       for (var i = 0; i < obj.events.length; i++) {
         var ele = createElement('select');
-        ele.setAttribute('id', 'eve_method_'+i);
+        ele.setAttribute('id', 'select_eve_method_'+i);
         ele.style.cssFloat='left';
         for (var j = 0; j < methods.length; j++) {
           var opt = createElement('option');
@@ -1723,15 +1735,18 @@
           opt.appendChild(createTextNode(methods[j]));
           ele.appendChild(opt);
         }
-        ele.style.width='48%';
+        //ele.style.width='48%';
         ele.value = obj.events[i].method;
         span.appendChild(ele);
         ele = createElement('input');
-        ele.setAttribute('id', 'eve_values_'+i);
+        ele.setAttribute('id', 'input_eve_values_'+i);
         ele.style.cssFloat='left';
-        ele.style.width = obj.events[i].method=='showText' ? '98%':'48%';
-        ele.value =
-            obj.events[i].method=='showText' ? atob(obj.events[i].values) : obj.events[i].values;
+        ele.style.minWidth = ele.style.width = obj.events[i].method=='showText' ? '98%':'48%';
+        try {
+          ele.value = obj.events[i].method=='showText' ?  atob(obj.events[i].values) : obj.events[i].values;
+        } catch (ex) { 
+          ele.value = obj.events[i].values
+        }
         span.appendChild(ele);
         ele = createElement('br');
         ele.style.clear = 'both';
@@ -1757,7 +1772,7 @@
       var ele = getElement('div_events');
       //add a new event div
       var span = createElement('select');
-      span.setAttribute('id', 'eve_method_'+obj.events.length);
+      span.setAttribute('id', 'select_eve_method_'+obj.events.length);
       span.style.cssFloat='left';
       var methods = ['showText','showObject','hideObject'];
       for (var j = 0; j < methods.length; j++) {
@@ -1770,7 +1785,7 @@
       span.setAttribute('placeholder','method');
       ele.appendChild(span);
       span = createElement('input');
-      span.setAttribute('id', 'eve_values_'+obj.events.length);
+      span.setAttribute('id', 'input_eve_values_'+obj.events.length);
       span.style.cssFloat='left';
       span.style.width='48%';
       span.setAttribute('placeholder','value');
@@ -1878,7 +1893,7 @@
       prompt.appendChild(createElement('hr'));
       span = createElement('button');
       span.appendChild(createTextNode('set dependencies'));
-      span.setAttribute('onclick','editor.setDependencies(\''+obj_id+'\');');
+      span.setAttribute('onclick','editor.setDependencies();');//\''+obj_id+'\');');
       prompt.appendChild(span);
       prompt.appendChild(createElement('br'));
       prompt.style.display='block';
@@ -2044,7 +2059,7 @@
         //ctx.fillText(''+atob(game.quest),0.02*cw,(0.01*cw+fts)*2);
         //begin of btx context
         ctx.lineWidth = 0.025 * cw;
-        //alert('objects.length='+objects.length);
+        //editor.showAlert('objects.length='+objects.length);
         for (var i = 0; i < objects.length; i++)
         {
           obj = objects[i];
@@ -2258,30 +2273,9 @@
         ele = createElement('br');
         ele.style.clear='both';
         grid.appendChild(ele);
-      }
-
-      //
-      ele = createElement('button');
-      ele.appendChild(createTextNode('set start'));
-      ele.setAttribute('onclick','editor.showPrompt(\'The next click will set the new start object.\', null, null);editor.mode=\'setstart\';');
-      body.appendChild(ele);
-      ele = createElement('button');
-      ele.appendChild(createTextNode('set end'));
-      ele.setAttribute('onclick','editor.showPrompt(\'The next click will set the new end object.\',null,null);editor.mode=\'setend\';');
-      body.appendChild(ele);
-      //
-      ele = createElement('button');
-      ele.appendChild(createTextNode('new game'));
-      ele.setAttribute('onclick','editor.newGame();');
-      body.appendChild(ele);
-      ele = createElement('button');
-      ele.setAttribute('id','playbutton');
-      ele.appendChild(createTextNode('play'));
-      ele.setAttribute('onclick','editor.showPrompt(\'Here you can play and test you game.\',\'editor.playGame(\',null);');
-      body.appendChild(ele);
-      ele = createElement('div');
-      //ele.style.height = '250px';
-      //ele.style.overflow = 'scroll';
+      }       
+      //the orange output box for the current orange element      
+      ele = createElement('div');      
       ele.setAttribute('id','output');
       body.appendChild(ele);
       for (var i = 0; i < game.objects.length; i++)
@@ -2296,8 +2290,23 @@
         getElement(obj.id).appendChild(createTextNode(' '+obj.order));
         getElement('ord_'+obj.id).innerHTML = '<br>';
         getElement('s_t_'+obj.id).innerHTML = '<br>';
+        //initially the output box is empty
       }
-      //
+      //this might be a menu button (also?)    
+      ele = createElement('button');
+      ele.appendChild(createTextNode('set dependencies'));      
+      ele.setAttribute('onclick','editor.showDependenciesPrompt(\'\');');
+      body.appendChild(ele);
+      //place those buttons in the editor menu !
+      ele = createElement('button');
+      ele.appendChild(createTextNode('new game'));
+      ele.setAttribute('onclick','editor.newGame();');
+      body.appendChild(ele);
+      ele = createElement('button');
+      ele.setAttribute('id','playbutton');
+      ele.appendChild(createTextNode('play'));
+      ele.setAttribute('onclick','editor.showPrompt(\'Here you can play and test you game.\',\'editor.playGame(\',null);');
+      body.appendChild(ele);
       //update = true;
       requestAnimationFrame(function() { updateDraw(); } );
     };
