@@ -1,0 +1,23 @@
+<html>
+<body>
+<textarea id="output"></textarea>
+<script>
+  var canvas, ctx, img;
+
+  function init() {
+    canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    ctx = canvas.getContext('2d');
+    img = new Image();
+    img.src = 'epicon.png';
+    img.onload = function() {
+      ctx.drawImage(img, 0, 0, 50, 50);
+      document.getElementById('output').value = canvas.toDataURL('image/png');
+    }
+  };
+
+  window.onload = setTimeout(init, 100);
+</script>
+</body>
+</html>
