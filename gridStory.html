@@ -31,8 +31,9 @@
   .closer,button.closer {font-weight: bold; color: #fff; background: #c00; width: 20%; min-width: 20%; max-width: 20%;}
   .closer:hover,.closer:focus,.closer:active {background: #f00;}
   .canvas-container {display:none;position:absolute;top:0;left:0;width: 100%;max-width: 100%;height: 100%;max-height: 100%;}
-  .menu {background:#fff;height:100%;width:50%;max-width:50%;box-shadow:inset 0 1px 0 #999,0 2px 5px #000;border-right:solid 1px #999;}
+  .menu {position: relative;background:#fff;height:100%;width:50%;max-width:50%;box-shadow:inset 0 1px 0 #999,0 2px 5px #000;border-right:solid 1px #999;}
   .menu-overlay {height:100%;width: 100%;max-width:100%;background: rgba(153,153,153,0.75);position: fixed;left: 0;top: 0;}
+  .epicon{background:url(data:image/png;base64,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);background-size:cover/*contain*/;}
   /*.ingame-visible{display: block;}*/
  </style>
  <!--
@@ -1119,11 +1120,11 @@
         }
       }, true);
       var elep = createElement('div');
-      ele.appendChild(elep);
       elep.className = 'menu';
+      ele.appendChild(elep);
       //add the close button
       ele = createElement('button');
-      ele.appendChild(createTextNode('close'));  
+      ele.appendChild(createTextNode('close'));
       ele.style.fontWeight = 'bold';
       ele.style.color = '#fff';
       ele.style.background = '#c00';
@@ -1136,7 +1137,7 @@
       elep.appendChild(createElement('hr'));
       //add dependencies, new game, play
       ele = createElement('button');
-      ele.appendChild(createTextNode('set dependencies'));      
+      ele.appendChild(createTextNode('set dependencies'));
       ele.setAttribute('onclick','editor.showDependenciesPrompt(\'\');editor.closeMenu();');
       elep.appendChild(ele);
       elep.appendChild(createElement('br'));
@@ -1156,6 +1157,15 @@
       //add a load game button
       //add a new level button
       //a logo?
+      ele = createElement('div');
+      ele.style.width = ele.style.maxWidth = (elep.offsetWidth*0.8)+'px';
+      ele.style.maxHeight = ele.style.height = (elep.offsetWidth*0.8)+'px';
+      ele.className = 'epicon';
+      //ele.style.marginLeft = '9.5%';
+      ele.style.position = 'fixed';
+      ele.style.bottom = '0';
+      ele.style.right = '-'+(elep.offsetWidth*0.1)+'px';
+      elep.appendChild(ele);
     };
     /**
 
@@ -1195,7 +1205,7 @@
       var ele = getElement('ord_'+obj.id);
       ele.innerHTML = '';
       ele.appendChild(createTextNode(obj.order));
-      //      
+      //
       var i = 0;
       var action = null;
       //gathering all event selects and inputs
@@ -1203,7 +1213,7 @@
       while (getElement('select_eve_method_'+i) != null) {
         action = getElement('select_eve_method_'+i).value;
         obj.events[i].method = action;
-        obj.events[i].values = [(action == 'showText' ? 
+        obj.events[i].values = [(action == 'showText' ?
           btoa(getElement('input_eve_values_'+i).value) : getElement('input_eve_values_'+i).value)];
         i++;
         //one after an other
@@ -1782,7 +1792,7 @@
         ele.style.minWidth = ele.style.width = obj.events[i].method=='showText' ? '98%':'48%';
         try {
           ele.value = obj.events[i].method=='showText' ?  atob(obj.events[i].values) : obj.events[i].values;
-        } catch (ex) { 
+        } catch (ex) {
           ele.value = obj.events[i].values
         }
         span.appendChild(ele);
@@ -2210,7 +2220,7 @@
       game = editor.loadGame();
       var ele = null;
       ele = createElement('button');
-      ele.style.backgroundImage = 'url(https://hogventure.com/img/menu0.png)';
+      ele.style.backgroundImage = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABmklEQVRoQ+2YIUtFQRCFv1d82SAWEfwBCnaDSTAIgtEgaDKpzWizajGqr7z0QDBpNJgF/QFiEAwiiD9AGXjhIlx3Z/cO9zrsq2/mzJw5u2eW28PJr+eEB4VI15QsihRFjCagOVpbRj2EYAehAPk/hsgs8BIDZhizADz9hR8isgZcGzaogd4EhnUJISJXwLqmmmHsDbCaSuTbsLEU6NrBhxRxQ0Sc6jJldAY5+8Bp6tGSvDNg16AxDeQ5sJPjWtXcZ03lBmPnYrBCdyQGoxMxhUgnZKg0URT5j4pMjO33pKXmZX+I/X7l2O8k8NESgd9lp4D31IXoZrO7eWu5IeLmaE0Dbx257DPAa+pll7w+cAgctURI6or1f+bYb0u968uWJ4p+ZrYZRRHb+erRNYo86OEbyViMQYkhcjy23xg8qxix34Mc+3Wz2d28tdwQuQVWrA6+EvcOWE59a20AI2VBq/Bt4CKViOTNA49W3UXiLgH3Oa5Vzd2LLNp0WO2H62qhmD3SdGMmeIWIyVgzQIsiGcMzSS2KmIw1A/QHntksM/+ir4IAAAAASUVORK5CYII=)';
       ele.style.backgroundSize = '100%';
       ele.style.width = '12.5%';
       body.appendChild(ele);
@@ -2311,9 +2321,9 @@
         ele = createElement('br');
         ele.style.clear='both';
         grid.appendChild(ele);
-      }       
-      //the orange output box for the current orange element      
-      ele = createElement('div');      
+      }
+      //the orange output box for the current orange element
+      ele = createElement('div');
       ele.setAttribute('id','output');
       body.appendChild(ele);
       for (var i = 0; i < game.objects.length; i++)
@@ -2330,9 +2340,9 @@
         getElement('s_t_'+obj.id).innerHTML = '<br>';
         //initially the output box is empty
       }
-      //this might be a menu button (also?)    
+      //this might be a menu button (also?)
       ele = createElement('button');
-      ele.appendChild(createTextNode('set dependencies'));      
+      ele.appendChild(createTextNode('set dependencies'));
       ele.setAttribute('onclick','editor.showDependenciesPrompt(\'\');');
       body.appendChild(ele);
       //place those buttons in the editor menu !
