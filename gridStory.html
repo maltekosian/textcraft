@@ -432,9 +432,14 @@
         console.log(x,y);
         if (!game.menuMode) {
         //game.menumode false|true
-          if (game.mousetime != null) {
-            clearTimeout(game.mousetime);
-            game.mousetime = null;
+          //if (game.mousetime != null) {
+          //  clearTimeout(game.mousetime);
+          //  game.mousetime = null;
+          //}
+          if (x < 52 && y < 52) {
+            game.menuMode = true;
+            update = true;
+            return;
           }
           if (!game.over) {
 
@@ -730,10 +735,12 @@
         }
       }
     };
+    /*
     Game.prototype.showMenu = function() {
       game.menuMode = true;
       update = true;
     }
+    **/
     /**
     @method draw
     */
@@ -743,10 +750,13 @@
       ctx.fillStyle = '#f8faff';
       ctx.fillRect(0,0,cw,ch);
       ctx.fillStyle = '#000';
-      var fts = Math.round(0.035*cw);
+      var fts = Math.round( (((ch - cw) / 2) / 5) );
       ctx.font = fts+'px Sans-Serif';
       var objects = game.objects;
       var obj = null;
+      var menuImg = new Image();
+      menuImg.src = menuicon;
+      ctx.drawImage(menuImg, 0, 0, 50, 50);
       if (game.over)
       {
         ctx.fillText(''+atob(game.title),0.02*cw,(0.01*ch+fts)*1);
@@ -859,10 +869,11 @@
         }
         //end of btx context
         ctx.fillStyle = '#000';
-        var fts = Math.round(0.035*cw);
+        var fts = Math.round( (((ch - cw) / 2) / 5) );
         ctx.font = fts+'px Sans-Serif';
-        ctx.fillText(''+atob(game.title),0.02*cw,ch/3*2+0.01*ch+fts);
-        ctx.fillText(''+atob(game.quest),0.02*cw,ch/3*2+(0.01*ch+fts)*2);
+        console.log('fts => '+fts);
+        ctx.fillText(''+atob(game.title),0.02*cw,fts*1.1);
+        ctx.fillText(''+atob(game.quest),0.02*cw,fts*2.2);
         if (game.current != null) {
           ctx.fillText(''+game.current.getText(),0.02*cw,ch/3*2+(0.01*ch+fts)*3);
         } else if (game.order.length > 0) {
@@ -880,8 +891,15 @@
         if (game.menuMode) {
           ctx.fillStyle = 'rgba(0,0,0,0.5)';
           ctx.fillRect(0,0,cw, ch);
-          ctx.fillStyle = 'rgba(255,255,255,0.85)';
-          ctx.fillRect(cw/2,0,cw/2, ch);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(0, 0, cw/2, ch);
+          ctx.drawImage(menuImg, cw/2 - 52, 0, 50, 50);
+          ctx.fillStyle = '#000';
+          ctx.fillRect(0, 52, cw/2, 2);
+          ctx.fillText('stop Game', 5, 52 + fts * 1.5);
+          ctx.fillRect(0, 52 + fts * 2, cw/2, 2);
+          ctx.fillText('restart', 5, 52 + fts * 3.5);
+          ctx.fillRect(0, 52 + fts * 4, cw/2, 2);
         }
       }
     };
@@ -2229,6 +2247,9 @@
       }
     };
     /**
+    */
+    var menuicon = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABmklEQVRoQ+2YIUtFQRCFv1d82SAWEfwBCnaDSTAIgtEgaDKpzWizajGqr7z0QDBpNJgF/QFiEAwiiD9AGXjhIlx3Z/cO9zrsq2/mzJw5u2eW28PJr+eEB4VI15QsihRFjCagOVpbRj2EYAehAPk/hsgs8BIDZhizADz9hR8isgZcGzaogd4EhnUJISJXwLqmmmHsDbCaSuTbsLEU6NrBhxRxQ0Sc6jJldAY5+8Bp6tGSvDNg16AxDeQ5sJPjWtXcZ03lBmPnYrBCdyQGoxMxhUgnZKg0URT5j4pMjO33pKXmZX+I/X7l2O8k8NESgd9lp4D31IXoZrO7eWu5IeLmaE0Dbx257DPAa+pll7w+cAgctURI6or1f+bYb0u968uWJ4p+ZrYZRRHb+erRNYo86OEbyViMQYkhcjy23xg8qxix34Mc+3Wz2d28tdwQuQVWrA6+EvcOWE59a20AI2VBq/Bt4CKViOTNA49W3UXiLgH3Oa5Vzd2LLNp0WO2H62qhmD3SdGMmeIWIyVgzQIsiGcMzSS2KmIw1A/QHntksM/+ir4IAAAAASUVORK5CYII=';
+    /**
     editor method
     @method init
     */
@@ -2237,7 +2258,7 @@
       game = editor.loadGame();
       var ele = null;
       ele = createElement('button');
-      ele.style.backgroundImage = 'url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAABmklEQVRoQ+2YIUtFQRCFv1d82SAWEfwBCnaDSTAIgtEgaDKpzWizajGqr7z0QDBpNJgF/QFiEAwiiD9AGXjhIlx3Z/cO9zrsq2/mzJw5u2eW28PJr+eEB4VI15QsihRFjCagOVpbRj2EYAehAPk/hsgs8BIDZhizADz9hR8isgZcGzaogd4EhnUJISJXwLqmmmHsDbCaSuTbsLEU6NrBhxRxQ0Sc6jJldAY5+8Bp6tGSvDNg16AxDeQ5sJPjWtXcZ03lBmPnYrBCdyQGoxMxhUgnZKg0URT5j4pMjO33pKXmZX+I/X7l2O8k8NESgd9lp4D31IXoZrO7eWu5IeLmaE0Dbx257DPAa+pll7w+cAgctURI6or1f+bYb0u968uWJ4p+ZrYZRRHb+erRNYo86OEbyViMQYkhcjy23xg8qxix34Mc+3Wz2d28tdwQuQVWrA6+EvcOWE59a20AI2VBq/Bt4CKViOTNA49W3UXiLgH3Oa5Vzd2LLNp0WO2H62qhmD3SdGMmeIWIyVgzQIsiGcMzSS2KmIw1A/QHntksM/+ir4IAAAAASUVORK5CYII=)';
+      ele.style.backgroundImage = 'url('+menuicon+')';
       ele.style.backgroundSize = '100%';
       ele.style.width = '12.5%';
       body.appendChild(ele);
