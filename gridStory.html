@@ -29,7 +29,8 @@
   .prompt{position: absolute; left: 1%; top: 1%; min-width: 95%;max-width: 95%; min-height: 95%;max-height: 95%; padding: 1%; z-index: 100; display: block; overflow: auto; background: rgba(253,253,253,0.95); color: #000; box-shadow: inset 1px 1px 0px #999,inset 1px 1px 0px #999;border:1px solid #999;}
   .helptext {display: block; width: 94%; border: dotted 1px #ccc; font-size: 12px; margin-left: 1%; padding: 2%;};
   .closer,button.closer {font-weight: bold; color: #fff; background: #c00; width: 20%; min-width: 20%; max-width: 20%;}
-  .closer:hover,.closer:focus,.closer:active {background: #f00;}
+  .menu button.input { width: 97%; min-width: 97%; padding: 3%; margin: 2% 1%; }
+  .closer:hover,.closer:focus,.closer:active {background: #f00!important;}
   .canvas-container {display:none;position:absolute;top:0;left:0;width: 100%;max-width: 100%;height: 100%;max-height: 100%;}
   .menu {position: relative;background:#fff;height:100%;width:50%;max-width:50%;box-shadow:inset 0 1px 0 #999,0 2px 5px #000;border-right:solid 1px #999;}
   .menu-overlay {height:100%;width: 100%;max-width:100%;background: rgba(153,153,153,0.75);position: fixed;left: 0;top: 0;}
@@ -438,6 +439,11 @@
           //}
           if (x < 52 && y < 52) {
             game.menuMode = true;
+            px = 0;
+            py = 0;
+            mx = 0;
+            my = 0;
+            pressed = false;
             update = true;
             return;
           }
@@ -488,6 +494,36 @@
           }
         } else {
           //M E N U M O D E
+          var cw = canvas.width;
+          var fts = Math.round( (((canvas.height - cw) / 2) / 5) );
+          console.log('game - menumode '+x+', '+y);
+          if (x < cw / 2 && y > 54 && y < 52 + 2 * fts) {
+            //game.stopGame();
+            console.log('stopGame '+y);
+            px = 0;
+            py = 0;
+            mx = 0;
+            my = 0;
+            game.current = null;
+            pressed = false;
+            editor.stopGame();
+          } else
+          if (x < cw / 2 && y > 54 + 2 * fts && y < 52 + 4 * fts) {
+            console.log('restartGame '+y);
+            px = 0;
+            py = 0;
+            mx = 0;
+            my = 0;
+            game.current = null;
+            pressed = false;
+            update = true;
+            //game.restartGame();
+          } else
+          if ((x > cw / 2 - 50 && y < 50) || (x > cw / 2) ) {
+            console.log('close menu '+x+', '+y);
+            game.menuMode = false;
+            update = true;
+          }
         }
         px = 0;
         py = 0;
@@ -1172,18 +1208,21 @@
       elep.appendChild(createElement('hr'));
       //add dependencies, new game, play
       ele = createElement('button');
+      ele.className = 'input';
       ele.appendChild(createTextNode('set dependencies'));
       ele.setAttribute('onclick','editor.showDependenciesPrompt(\'\');editor.closeMenu();');
       elep.appendChild(ele);
       elep.appendChild(createElement('br'));
       //place those buttons in the editor menu !
       ele = createElement('button');
+      ele.className = 'input';
       ele.appendChild(createTextNode('new game'));
       ele.setAttribute('onclick','editor.newGame();editor.closeMenu();');
       elep.appendChild(ele);
       elep.appendChild(createElement('br'));
       ele = createElement('button');
-      ele.setAttribute('id','playbutton');
+      ele.className = 'input';
+      //ele.setAttribute('id','playbutton');
       ele.appendChild(createTextNode('play'));
       ele.setAttribute('onclick','editor.showPrompt(\'Here you can play and test you game.\',\'editor.playGame(\',null);editor.closeMenu();');
       elep.appendChild(ele);
@@ -1575,7 +1614,7 @@
       if (canvas != null) {
         body.removeChild(canvascontainer);
       }
-	  var canvascontainer = createElement('div');
+	    var canvascontainer = createElement('div');
       canvas = createElement('canvas');
       var w = window.innerWidth;
       var h = window.innerHeight;
@@ -1660,6 +1699,7 @@
       canvascontainer.appendChild(canvas);
       body.appendChild(canvascontainer);
       canvascontainer.style.display = 'block';
+      canvascontainer.setAttribute('id', 'canvascontainer');
       ctx = canvas.getContext('2d');
       //new game instance
       game.init();
@@ -1675,6 +1715,7 @@
       game = editor.oldGame;
       editor.oldGame = null;
       canvas.style.display = 'none';
+      body.removeChild(getElement('canvascontainer'));
       getElement('playbutton').innerHTML='';
       getElement('playbutton').appendChild(createTextNode('play'));
       getElement('playbutton').setAttribute('onclick' , 'editor.playGame();');
