@@ -374,8 +374,8 @@
     /**
     follows touch and mouse event
     @method mousePressed
-    @param x the x coordinate in 0 to 1 .
-    @param y the y coordinate in 0 to 1 .
+    @param x the x coordinate real value//in 0 to 1 .
+    @param y the y coordinate real value //in 0 to 1 .
     */
     Game.prototype.mousePressed = function(x,y) {
       console.log(pressed);
@@ -383,11 +383,10 @@
       {
         pressed = true;
         var obj = null;
-        var yo = y * canvas.height / canvas.width;
-        console.log('y='+y+',x='+x+',yo='+yo);
+        console.log('pressed->y='+y+',x='+x+',yo=');
         for (var i = 0; i < game.objects.length; i++) {
           obj = game.objects[i];
-          if (obj.pointHits(x,yo) && obj.active) {
+          if (obj.pointHits(x,y) && obj.active) {
             //find the current object
             game.current = obj;
           }
@@ -405,17 +404,17 @@
     /**
     follows touch and mouse event
     @method mouseMoved
-    @param x the x coordinate in 0 to 1 .
-    @param y the y coordinate in 0 to 1 .
+    @param x the x coordinate .
+    @param y the y coordinate //in 0 to 1 .
     */
     Game.prototype.mouseMoved = function(x,y) {
       if (pressed)
       {
         if (game.current != null)
         {
-          var yo = y * canvas.height / canvas.width;
-          game.current.x += x-game.current.x;
-          game.current.y += yo-game.current.y;
+          //var yo = y;
+          game.current.x += x/canvas.width-game.current.x;
+          game.current.y += y/canvas.width-game.current.y;
           update = true;
         }
       }
@@ -423,8 +422,8 @@
     /**
     follows touch and mouse event
     @method mouseReleased
-    @param x the x coordinate in 0 to 1 .
-    @param y the y coordinate in 0 to 1 .
+    @param x the x coordinate //in 0 to 1 .
+    @param y the y coordinate //in 0 to 1 .
     */
     Game.prototype.mouseReleased = function(x,y) {
       console.log('released->pressed='+pressed,x,y);
@@ -441,14 +440,14 @@
 
             if (game.current != null && game.start != null && (
                 (game.current.id != game.start &&
-                game.getObject(game.start).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)) ||
+                game.getObject(game.start).pointHits(game.current.x*canvas.width+game.current.w*canvas.width/2, game.current.y*canvas.width+game.current.h*canvas.width/2)) ||
                 (game.end != null && game.current.id == game.start &&
-                game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2))
+                game.getObject(game.end).pointHits(game.current.x*canvas.width + game.current.w*canvas.width/2, game.current.y*canvas.width+game.current.h*canvas.width/2))
                ))
             {
               console.log(game.start+'-'+game.current.id,game.getObject(game.start));
               if (game.current.id == game.start &&
-                 game.getObject(game.end).pointHits(game.current.x+game.current.w/2, game.current.y+game.current.h/2)
+                 game.getObject(game.end).pointHits(game.current.x*canvas.width+game.current.w*canvas.width/2, game.current.y*canvas.width+game.current.h*canvas.width /2)
                  )
               {
                 game.current = game.getObject(game.end);
@@ -465,7 +464,7 @@
                 game.over = true;
               }
             } else if (game.current != null && game.current.id == game.start &&
-                       game.getObject(game.start).pointHits(game.current.ox+game.current.w/2, game.current.oy+game.current.h/2)
+                       game.getObject(game.start).pointHits(game.current.ox*canvas.width+game.current.w*canvas.width/2, game.current.oy*canvas.width+game.current.h*canvas.width/2)
                       )
             {
               if (game.order.indexOf(game.current.id) < 0) {
@@ -501,13 +500,14 @@
     */
     Game.prototype.init = function() {
       var obj = null;
+      var pheight = ((canvas.height - canvas.width)/2) / canvas.width;
       for (var i = 0; i < 4; i++)
       {
         for (var j = 0; j < 4; j++)
         {
           obj = game.getObject('o_'+i+'_'+j);
           obj.x = 0.04 + j * 0.24;//canvas.width/40 + j * canvas.width/4.5;
-          obj.y = 0.04 + i * 0.24;//canvas.width/8 + i * canvas.width/4.5;
+          obj.y = 0.04 + i * 0.24 + pheight;//canvas.width/8 + i * canvas.width/4.5;
           obj.w = obj.h = 0.2;//canvas.width/6;
           obj.ox = obj.x;
           obj.oy = obj.y;
@@ -807,6 +807,9 @@
         ctx.fillText(''+atob(game.quest),0.02*cw,ch/3*2+(0.01*ch+fts)*2);
         //begin of btx context
         ctx.lineWidth = 0.025 * cw;
+        //the position height
+        var pheight = (ch - cw) / 2; 
+        //
         for (var i = 0; i < objects.length; i++)
         {
           obj = objects[i];
@@ -1057,7 +1060,7 @@
       @method pointHits
       */
       this.pointHits = function(x, y) {
-        return (this.x <= x && this.y <= y && this.x + this.w >= x && this.y + this.h >= y);
+        return (this.x * canvas.width <= x && this.y * canvas.width <= y && this.x * canvas.width + this.w * canvas.width >= x && this.y * canvas.width + this.h * canvas.width >= y);
       }
     };
     /**
@@ -1584,14 +1587,14 @@
         canvas.addEventListener('touchstart',
         function(eve) {
           eve.preventDefault();
-          mousePressed(eve.touches[0].pageX/canvas.width,eve.touches[0].pageY/canvas.height);
+          mousePressed(eve.touches[0].pageX,eve.touches[0].pageY);
         },
         false);
         canvas.addEventListener('touchmove',
         function(eve) {
           eve.preventDefault();
-          mx = eve.touches[0].pageX/canvas.width;
-          my = eve.touches[0].pageY/canvas.height;
+          mx = eve.touches[0].pageX;
+          my = eve.touches[0].pageY;
           mouseMoved(mx,my);
         },
         false);
@@ -1616,19 +1619,19 @@
       } //else {
       canvas.addEventListener('mousedown',
       function(eve) {
-        mousePressed(eve.pageX/canvas.width,eve.pageY/canvas.height);
+        mousePressed(eve.pageX,eve.pageY);
       },
       false);
       canvas.addEventListener('mousemove',
       function(eve) {
-        mx = eve.pageX/canvas.width;
-        my = eve.pageY/canvas.height;
+        mx = eve.pageX;
+        my = eve.pageY;
         mouseMoved(mx,my);
       },
       false);
       canvas.addEventListener('mouseup',
       function(eve) {
-        mouseReleased(eve.pageX/canvas.width,eve.pageY/canvas.height);
+        mouseReleased(eve.pageX,eve.pageY);
       },
       false);
 
@@ -2293,15 +2296,16 @@
 	  grid.setAttribute('id','grid-container');
 	  body.appendChild(grid);
 	  grid.style.height = grid.offsetWidth+'px';
+    var pheight = ((canvas.height - canvas.width) / 2) / canvas.width; 
       for (var i = 0; i < 4; i++)
       {
         for (var j = 0; j < 4; j++)
         {
-		    elep= createElement('div');
-		    elep.className = 'grid';
-		    elep.setAttribute('id','po_'+i+'_'+j);
-		    elep.setAttribute('onclick',
-          'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
+		      elep= createElement('div');
+		      elep.className = 'grid';
+		      elep.setAttribute('id','po_'+i+'_'+j);
+		      elep.setAttribute('onclick',
+              'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
               '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+
               '{\'txt\':\'set order and events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
               '{\'txt\':\'set dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
@@ -2318,18 +2322,19 @@
           //    '{\'txt\':\'dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
           ele.appendChild(createTextNode(' '+'o_'+i+'_'+j));
           //ele.appendChild(createTextNode(' '+obj.order));
+          
           if (game.getObject('o_'+i+'_'+j)==null)
           {
             var obj = new GameObject('o_'+i+'_'+j, null);
             //game.objects.push({text:'',order: 0, id:ele.id, event: null});
             obj.x = 0.04 + j * 0.24;//canvas.width/40 + j * canvas.width/4.5;
-            obj.y = 0.04 + i * 0.24;//canvas.width/8 + i * canvas.width/4.5;
+            obj.y = 0.04 + i * 0.24 + pheight;//canvas.width/8 + i * canvas.width/4.5;
             obj.w = obj.h = 0.2;//canvas.width/6;
             obj.ox = obj.x;
             obj.oy = obj.y;
             game.objects.push(obj);
           }
-		  elep.appendChild(ele);
+		      elep.appendChild(ele);
           grid.appendChild(elep);
         }
         ele = createElement('br');
