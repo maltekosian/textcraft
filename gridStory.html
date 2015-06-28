@@ -854,7 +854,7 @@
         //begin of btx context
         ctx.lineWidth = 0.025 * cw;
         //the position height
-        var pheight = (ch - cw) / 2; 
+        var pheight = (ch - cw) / 2;
         //
         for (var i = 0; i < objects.length; i++)
         {
@@ -883,7 +883,7 @@
               ctx.strokeStyle = 'rgba(51,51,51,0.5)';
             }
             if (game.current != null && obj.id == game.current.id) {
-              ctx.strokeStyle = '#f90';      
+              ctx.strokeStyle = '#f90';
             } else {
               ctx.fillRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
               ctx.strokeRect(obj.x * cw, obj.y * cw, obj.w * cw, obj.h * cw);
@@ -2358,7 +2358,7 @@
 	  grid.setAttribute('id','grid-container');
 	  body.appendChild(grid);
 	  grid.style.height = grid.offsetWidth+'px';
-    var pheight = ((canvas.height - canvas.width) / 2) / canvas.width; 
+    var pheight = ((canvas.height - canvas.width) / 2) / canvas.width;
       for (var i = 0; i < 4; i++)
       {
         for (var j = 0; j < 4; j++)
@@ -2377,14 +2377,9 @@
           ele = createElement('div');
           ele.className = 'grid-element';
           ele.setAttribute('id','o_'+i+'_'+j);
-          //ele.setAttribute('onclick',
-          //    'editor.showTextMenu(\''+'o_'+i+'_'+j+'\','+
-          //    '[{\'txt\':\'set text\',\'method\':\'editor.setText(\\\''+'o_'+i+'_'+j+'\\\',null)\'},'+
-          //    '{\'txt\':\'events\',\'method\':\'editor.showOrderAndEventsPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'},'+
-          //    '{\'txt\':\'dependencies\',\'method\':\'editor.showDependenciesPrompt(\\\''+'o_'+i+'_'+j+'\\\')\'}]);');
           ele.appendChild(createTextNode(' '+'o_'+i+'_'+j));
           //ele.appendChild(createTextNode(' '+obj.order));
-          
+
           if (game.getObject('o_'+i+'_'+j)==null)
           {
             var obj = new GameObject('o_'+i+'_'+j, null);
