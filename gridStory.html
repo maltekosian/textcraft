@@ -542,6 +542,11 @@
     Game.prototype.init = function() {
       var obj = null;
       var pheight = ((canvas.height - canvas.width)/2) / canvas.width;
+      game.order = [];
+      game.over = false;
+      game.menuMode = false;
+      game.current = null;
+      //game.objects = [];
       for (var i = 0; i < 4; i++)
       {
         for (var j = 0; j < 4; j++)
@@ -795,8 +800,14 @@
       ctx.drawImage(menuImg, 0, 0, 50, 50);
       if (game.over)
       {
-        ctx.fillText(''+atob(game.title),0.02*cw,fts*1);
-        ctx.fillText('statistics:',0.02*cw,fts*2);
+        ctext = game.formatText(atob(game.title), cw-60);
+        var h = 1;
+        for (var i = 0; i < ctext.length; i++) {
+          ctx.fillText(ctext[i], 54, fts*h);  
+          h++;
+        }
+        h += 1
+        ctx.fillText('statistics:', 10, fts*h);
         var missed = objects.length - game.order.length;
         if (missed > 0)
         {
@@ -813,13 +824,14 @@
               var dep = game.getDependency('hasMissed',obj.id);
               if (dep != null && cprior < dep.priority) {
                 cprior = dep.priority;
-                ctext = game.formatText(atob(dep.text));
+                ctext = game.formatText(atob(dep.text), cw - 20);
               }
             }
           }
           //hasMissed
           for (var j = 0; j < ctext.length; j++) {
-            ctx.fillText(ctext[j],0.02*cw,fts*(4+j));
+            ctx.fillText(ctext[j], 10, fts*h);
+            h++;
           }
         } else {
           var cprior = 0;
@@ -844,7 +856,8 @@
           //isSmaller
           ctx.fillStyle = '#c00';
           for (var j = 0; j < ctext.length; j++) {
-            ctx.fillText(ctext[j],0.02*cw,fts*(4+j));
+            ctx.fillText(ctext[j],10,fts*h);
+            h++;
           }
         }
       } else {
@@ -1622,37 +1635,7 @@
     @method playGame
     */
     editor.playGame = function() {
-      /*editor.saveGame();
-      editor.oldGame = game;
-      //new game instance
-      game = editor.loadGame();
-      win.canvas = getElement('canvas');
-      if (canvas == null) {
-        canvas = createElement('canvas');
-      } else {
-        //body.removeChild(canvas);
-        //body.appendChild(canvas);
-        ctx = canvas.getContext('2d');
-      }
-      var w = window.innerWidth;
-      var h = window.innerHeight;
-      //test
-      w > 410 ? w = 410: w = w;
-      //replace this once if everything will be canvas based including the editor
-      canvas.width = w < h ? w : h;
-      canvas.height = w < h ? w : h;
-      canvas.style.width = canvas.width+'px';
-      canvas.style.height = canvas.height+'px';
-      win.ctx = canvas.getContext('2d');
-      canvas.style.position='absolute';
-      canvas.style.left=0;
-      canvas.style.top=0;
-      canvas.style.background='rgba(255,255,255,0.75)';
-      getElement('playbutton').innerHTML='';
-      getElement('playbutton').appendChild(createTextNode('stop'));
-      getElement('playbutton').setAttribute('onclick' , 'editor.stopGame();');
-      body.appendChild(canvas);
-      game.init();*/
+      
       editor.saveGame();
       editor.oldGame = game;
 
@@ -1749,6 +1732,7 @@
       canvascontainer.setAttribute('id', 'canvascontainer');
       ctx = canvas.getContext('2d');
       //new game instance
+      game = editor.loadGame();
       game.init();
       gmode = 'game';
       update = true;
