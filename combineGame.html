@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <title> new document </title>
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+ </head>
+
+ <body>
+  <script>
+    /**
+    combination games are a match 2(+n) to make a valid statement
+    which shell cause a reaction
+    red and blue -> violet object
+    blue and red -> 'you are mad' (because it is a rime)
+    blue and green -> 'never seen'
+    green and green -> a green 2 object
+    */
+    var game = {};
+    game.objects = [];
+    game.combinations = [];
+    game.init = function() {
+      //initialize game
+      game.objects = [];
+      game.combinations = [];
+    };
+    game.store = function() {
+      //store json to localstorage for example
+      return JSON.stringify(this);
+    };
+    game.load = function(json) {
+      //load the json (file, localstorage etc.)
+      //json = JSON.parse(json);
+    };
+    game.combine = function(a, b) {
+      //if a b is a valid combination ->cut [bread] with [knife]
+      //if a b is not b a is -> you can not cut the [knife] with a [bread]
+      //if a b && b a is not
+    };
+    game.getObject = function(ref) {
+      for (var i = 0; i < game.objects.length; i++) {
+        if (game.objects[i].ref == ref) {
+          return game.objects[i];
+        }
+      }
+      return null;
+    };
+    game.hint = function(ref) {
+      var obj = game.getObject(ref);
+    };
+    function GameCombination(a,b,callAction) {
+      this.a = a;
+      this.b = b;
+      this.callAction = callAction;
+
+      this.isValid = function(a, b) {
+        return (this.a == a && this.b == b);
+      };
+
+      this.isInvertedValid = function(a, b) {
+        return (this.a == b && this.b == a);
+      };
+
+      this.isPartialValid = function(a, b) {
+        if (this.a == a) {
+          game['hint'](a);
+          return true;
+        } else if (this.b == b) {
+          game['hint'](b);
+          return true;
+        }
+        return false;
+      };
+    }
+    function GameObject(ref) {
+      this.ref = ref;
+      this.name = name;
+    }
+  </script>
+ </body>
+</html>
